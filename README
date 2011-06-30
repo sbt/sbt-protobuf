@@ -1,0 +1,20 @@
+sbt-protobuf is a plugin for sbt-0.10 and transforms *.proto files into gazillion-loc java files.
+
+It is based on softprops/coffeescripted-sbt[0] for the sbt-0.10 specific parts and codahale/protobuf-sbt[1] for the protobuf specifics.
+
+Disclaimer: A short test showed that the plugin works, but it's still in an early stage.
+
+Settings:
+protobuf-source: Path containing *.proto files. default: "src/main/protobuf"
+protobuf-target: Path for the generated *.java files. default: "$sourceManaged/compiled_protobuf"
+protobuf-version: Which version of the protobuf library should be used. default: "2.4.1"
+protoc: The path to the 'protoc' executable. default: "protoc"
+protobuf-include-path: The path for additional *.proto files. default: $protobuf-source"
+
+Tasks:
+protobuf-compile: Performs the hardcore compiling action
+protobuf-clean: Removes everything in $protobuf-target
+
+
+[0] https://github.com/softprops/coffeescripted-sbt
+[1] https://github.com/codahale/protobuf-sbt
