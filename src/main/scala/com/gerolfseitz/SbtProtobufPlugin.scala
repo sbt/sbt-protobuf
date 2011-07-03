@@ -9,26 +9,30 @@ import java.io.File
 
 
 object SbtProtobufPlugin extends Plugin {
-  val protoSource = SettingKey[File]("protobuf-source", "The path containing the *.proto files.")
-  val protoTarget = SettingKey[File]("protobuf-target", "The path for the generated protobuf java code.")
-  val protoClean = TaskKey[Unit]("protobuf-clean", "Clean just the files generated from protobuf sources.")
-  val protobufCompile = TaskKey[Seq[File]]("protobuf-compile", "Compile the protobuf sources.")
-  val protoIncludePaths = SettingKey[Seq[File]]("protobuf-include-path")
-  val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
-  val protobufVersion = SettingKey[String]("protobuf-version", "The version of the protobuf library.")
+  val Protobuf = config("protobuf")
 
-  override def settings = Seq(
+  val protoSource = SettingKey[File]("source", "The path containing the *.proto files.")
+  val protoTarget = SettingKey[File]("target", "The path for the generated protobuf java code.")
+  val protoClean = TaskKey[Unit]("clean", "Clean just the files generated from protobuf sources.")
+  val protobufCompile = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
+  val protoIncludePaths = SettingKey[Seq[File]]("include-path")
+  val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
+  val protobufVersion = SettingKey[String]("version", "The version of the protobuf library.")
+
+  override lazy val settings = inConfig(Protobuf)(Seq(
     protoSource <<= (sourceDirectory in Compile) { _ / "protobuf" },
     protoTarget <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
-    protoIncludePaths <<= protoSource(identity(_) :: Nil),
-    cleanFiles <+= protoTarget.identity,
+    protoIncludePaths <<= (protoSource in Protobuf)(identity(_) :: Nil),
     protoClean <<= protoCleanTask,
     protobufCompile <<= protoSourceGeneratorTask,
     protoc := "protoc",
-    sourceGenerators in Compile <+= protobufCompile.identity,
     protobufVersion := "2.4.1"
 // wait until the geniuses of the protobuf team publish the jars to maven central.
 // libraryDependencies <+= protobufVersion("com.google.protobuf" % "protobuf-java" % _)
+  )) ++ Seq(
+    sourceGenerators in Compile <+= (protobufCompile in Protobuf).identity,
+    cleanFiles <+= (protoTarget in Protobuf).identity
+    //compile in Compile <+= (protobufCompile in Protobuf).identity
   )
   
   private def outdated(protobuf: File, java: File) = 
@@ -66,20 +70,15 @@ object SbtProtobufPlugin extends Plugin {
     }.getOrElse(Seq())
   }
          
-  private def protoCleanTask = (streams, protoTarget) map {
+  private def protoCleanTask = (streams, protoTarget in Protobuf) map {
     (out, target) =>
       out.log.info("Cleaning generated java under " + target)
       IO.delete(target)
   }
 
-  private def protoSourceGeneratorTask = (streams, protoSource, protoTarget) map {
+  private def protoSourceGeneratorTask = (streams, protoSource in Protobuf, protoTarget in Protobuf) map {
     (out, srcDir, targetDir) =>
       compileChanged(srcDir, targetDir, out.log)
   }
-
-
-
-
-  
 
 }
