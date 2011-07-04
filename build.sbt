@@ -1,6 +1,6 @@
 sbtPlugin := true
 
-organization := "com.gerolfseitz"
+organization := "com.github.gseitz"
 
 name := "sbt-protobuf"
 
