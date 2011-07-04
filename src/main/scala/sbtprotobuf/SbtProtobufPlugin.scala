@@ -1,4 +1,4 @@
-package com.gerolfseitz.sbtprotobuf
+package sbtprotobuf
 
 import sbt._
 import Process._
