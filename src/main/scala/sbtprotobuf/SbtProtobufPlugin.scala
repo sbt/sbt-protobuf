@@ -27,12 +27,11 @@ object SbtProtobufPlugin extends Plugin {
     protobufCompile <<= protoSourceGeneratorTask,
     protoc := "protoc",
     protobufVersion := "2.4.1"
-// wait until the geniuses of the protobuf team publish the jars to maven central.
-// libraryDependencies <+= protobufVersion("com.google.protobuf" % "protobuf-java" % _)
   )) ++ Seq(
     sourceGenerators in Compile <+= (protobufCompile in Protobuf).identity,
-    cleanFiles <+= (protoTarget in Protobuf).identity
-    //compile in Compile <+= (protobufCompile in Protobuf).identity
+    cleanFiles <+= (protoTarget in Protobuf).identity,
+    libraryDependencies <+= (protobufVersion in Protobuf)("com.google.protobuf" % "protobuf-java" % _)
+
   )
   
   private def outdated(protobuf: File, java: File) = 
