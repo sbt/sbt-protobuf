@@ -33,22 +33,15 @@ object SbtProtobufPlugin extends Plugin {
     libraryDependencies <+= (protobufVersion in Protobuf)("com.google.protobuf" % "protobuf-java" % _)
 
   )
-  
-  private def outdated(protobuf: File, java: File) = 
-    !java.exists || protobuf.lastModified > java.lastModified
 
   private def compile(sources: File, target: File, log: Logger) =
     try {
-      //<x>protoc {incPath} --java_out={protobufOutputPath.absolutePath} {protobufSchemas.getPaths.mkString(" ")}</x> ! log
       val schemas = (PathFinder(sources) ** "*.proto").get
       val incPath = List(sources).map(_.absolutePath).mkString("-I", " -I", "")
       <x>protoc {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
-     
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
-
-
 
 
   private def compileChanged(sources: File, target: File, log: Logger) = {
@@ -57,7 +50,8 @@ object SbtProtobufPlugin extends Plugin {
       if (mostRecentSchemaTimestamp > target.lastModified) {
         target.mkdirs()
         log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
-        schemas.foreach { schema => log.info("Compiling schema %s".format(schema)) }
+        schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
+
         val exitCode = compile(sources, target, log)
         if (exitCode == 0) target.setLastModified(mostRecentSchemaTimestamp)
         else log.error("protoc returned exit code: %d" format exitCode)
@@ -68,7 +62,7 @@ object SbtProtobufPlugin extends Plugin {
       }
     }.getOrElse(Seq())
   }
-         
+
   private def protoCleanTask = (streams, protoTarget in Protobuf) map {
     (out, target) =>
       out.log.info("Cleaning generated java under " + target)
