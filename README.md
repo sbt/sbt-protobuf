@@ -6,7 +6,7 @@ It is based on [softprops/coffeescripted-sbt](https://github.com/softprops/coffe
 
 Scope
 -----
-All settings and tasks are scoped with protobuf. If you want to execute the `generate` task directly, just run `protobuf:generate`.
+All settings and tasks are in the `protobuf` scope. If you want to execute the `generate` task directly, just run `protobuf:generate`.
 
 
 
