@@ -53,8 +53,11 @@ object SbtProtobufPlugin extends Plugin {
         schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
 
         val exitCode = compile(sources, target, log)
-        if (exitCode == 0) target.setLastModified(mostRecentSchemaTimestamp)
-        else log.error("protoc returned exit code: %d" format exitCode)
+        if (exitCode == 0)
+          target.setLastModified(mostRecentSchemaTimestamp)
+        else
+          error("protoc returned exit code: %d" format exitCode)
+
         (target ** "*.java").get
       } else {
         log.info("No protobuf files to compile")
