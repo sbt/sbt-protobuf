@@ -13,11 +13,12 @@ object SbtProtobufPlugin extends Plugin {
 
   val protoSource = SettingKey[File]("source", "The path containing the *.proto files.")
   val protoTarget = SettingKey[File]("generated-source", "The path for the generated protobuf java code.")
-  val protoClean = TaskKey[Unit]("clean", "Clean just the files generated from protobuf sources.")
-  val protobufCompile = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
   val protoIncludePaths = SettingKey[Seq[File]]("include-path")
   val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
   val protobufVersion = SettingKey[String]("version", "The version of the protobuf library.")
+
+  val protoClean = TaskKey[Unit]("clean", "Clean just the files generated from protobuf sources.")
+  val protobufCompile = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
 
   override lazy val settings = inConfig(Protobuf)(Seq(
     protoSource <<= (sourceDirectory in Compile) { _ / "protobuf" },
