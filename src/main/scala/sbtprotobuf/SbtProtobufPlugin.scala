@@ -12,7 +12,7 @@ object SbtProtobufPlugin extends Plugin {
   val Protobuf = config("protobuf")
 
   val protoSource = SettingKey[File]("source", "The path containing the *.proto files.")
-  val protoTarget = SettingKey[File]("target", "The path for the generated protobuf java code.")
+  val protoTarget = SettingKey[File]("generated-source", "The path for the generated protobuf java code.")
   val protoClean = TaskKey[Unit]("clean", "Clean just the files generated from protobuf sources.")
   val protobufCompile = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
   val protoIncludePaths = SettingKey[Seq[File]]("include-path")
