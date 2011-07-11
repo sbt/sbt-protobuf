@@ -17,7 +17,7 @@ Settings
 <tr><th>name</th><th>default</th><th>description</th></tr>
 <tr><td>source</td><td>"src/main/protobuf"</td><td>Path containing *.proto files.</td></tr>
 <tr><td>generated-source</td><td>"$sourceManaged/compiled_protobuf"</td><td>Path for the generated *.java files.</td></tr>
-<tr><td>version</td><td>"2.4.1"</td><td>Which version of the protobuf library should be used.</td></tr>
+<tr><td>version</td><td>"2.4.1"</td><td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td></tr>
 <tr><td>protoc</td><td>"protoc"</td><td>The path to the 'protoc' executable.</td></tr>
 <tr><td>include-path</td><td>"$generated-source"</td><td>The path for additional *.proto files.</td></tr>
 </table>
