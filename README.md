@@ -4,6 +4,17 @@ A plugin for sbt-0.10 and transforms *.proto files into gazillion-loc java files
 
 It is based on [softprops/coffeescripted-sbt](https://github.com/softprops/coffeescripted-sbt) for the sbt-0.10 specific parts and [codahale/protobuf-sbt](https://github.com/codahale/protobuf-sbt) for the protobuf specifics.
 
+Usage
+-----
+In your project, define a file for plugin library dependencies `project/plugins/build.sbt`
+
+And add the following lines
+
+    resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
+
+    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.0.1"
+
+
 Scope
 -----
 All settings and tasks are in the `protobuf` scope. If you want to execute the `generate` task directly, just run `protobuf:generate`.
