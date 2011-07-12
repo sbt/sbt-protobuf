@@ -10,13 +10,13 @@ import java.io.File
 object SbtProtobufPlugin extends Plugin {
   val Protobuf = config("protobuf")
 
-  val protoSourcePath = SettingKey[File]("source", "The path containing the *.proto files.")
+  val protoSourcePath = SettingKey[File]("source-path", "The path containing the *.proto files.")
   val protoGeneratedSourcePath = SettingKey[File]("generated-source-path", "The path for the generated protobuf java code.")
   val protoIncludePaths = SettingKey[Seq[File]]("include-path")
   val protoLibraryDependencies = SettingKey[Seq[sbt.ModuleID]]("library-dependencies", "Libraries containing *.proto files.")
   val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
   val protoVersion = SettingKey[String]("version", "The version of the protobuf library.")
-  val protoExternalProtobufIncludePath = SettingKey[File]("external-protobuf-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc/")
+  val protoExternalProtobufIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
 
   val protoClean = TaskKey[Unit]("clean", "Clean just the files generated from protobuf sources.")
   val protoGenerate = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
@@ -41,7 +41,7 @@ object SbtProtobufPlugin extends Plugin {
     sourceGenerators in Compile <+= (protoGenerate in Protobuf).identity,
     cleanFiles <+= (protoGeneratedSourcePath in Protobuf).identity,
     libraryDependencies <+= (protoVersion in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
-    libraryDependencies <++= (protoLibraryDependencies in Protobuf)(identity(_))
+    libraryDependencies <++= (protoLibraryDependencies in Protobuf).identity
   )
 
   private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) =
