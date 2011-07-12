@@ -78,6 +78,7 @@ object SbtProtobufPlugin extends Plugin {
 
   private val protoFilter = new SimpleFilter((name: String) => name.endsWith(".proto"))
   private def unpack(deps: Seq[ModuleID], extractTarget: File, log: Logger): Seq[File] = {
+    IO.createDirectory(extractTarget)
     deps.flatMap { dep =>
       IvyCache.withCachedJar(dep, None, log) { jar =>
         val seq = IO.unzip(jar, extractTarget, protoFilter).toSeq
