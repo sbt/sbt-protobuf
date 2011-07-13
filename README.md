@@ -33,9 +33,9 @@ Settings
 <tr><td>generated-source</td><td>"$sourceManaged/compiled_protobuf"</td><td>Path for the generated *.java files.</td></tr>
 <tr><td>version</td><td>"2.4.1"</td><td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td></tr>
 <tr><td>protoc</td><td>"protoc"</td><td>The path to the 'protoc' executable.</td></tr>
-<tr><td>include-path</td><td>"$generated-source"</td><td>The path for additional *.proto files.</td></tr>
+<tr><td>include-path</td><td>["$generated-source", "$external-include-path"]</td><td>The path for additional *.proto files.</td></tr>
 <tr><td>library-dependencies</td><td>Nil</td><td>Libraries containing *.proto files.</td></tr>
-<tr><td>external-include-path</td><td>Nil</td><td>The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc</td></tr>
+<tr><td>external-include-path</td><td>target/protobuf_external</td><td>The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc</td></tr>
 </table>
 
 Tasks
