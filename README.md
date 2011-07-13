@@ -29,13 +29,13 @@ Settings
 
 <table>
 <tr><th>name</th><th>default</th><th>description</th></tr>
-<tr><td>source</td><td>"src/main/protobuf"</td><td>Path containing *.proto files.</td></tr>
-<tr><td>generated-source</td><td>"$sourceManaged/compiled_protobuf"</td><td>Path for the generated *.java files.</td></tr>
-<tr><td>version</td><td>"2.4.1"</td><td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td></tr>
-<tr><td>protoc</td><td>"protoc"</td><td>The path to the 'protoc' executable.</td></tr>
-<tr><td>include-path</td><td>["$generated-source", "$external-include-path"]</td><td>The path for additional *.proto files.</td></tr>
-<tr><td>library-dependencies</td><td>Nil</td><td>Libraries containing *.proto files.</td></tr>
-<tr><td>external-include-path</td><td>target/protobuf_external</td><td>The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc</td></tr>
+<tr><td>source</td><td><code>"src/main/protobuf"</code></td><td>Path containing *.proto files.</td></tr>
+<tr><td>generated-source</td><td><code>"$sourceManaged/compiled_protobuf"</code></td><td>Path for the generated *.java files.</td></tr>
+<tr><td>version</td><td><code>"2.4.1"</code></td><td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td></tr>
+<tr><td>protoc</td><td><code>"protoc"</code></td><td>The path to the 'protoc' executable.</td></tr>
+<tr><td>include-path</td><td><code>Seq($generated-source, external-include-path)</code></td><td>The path for additional *.proto files.</td></tr>
+<tr><td>library-dependencies</td><td><code>Nil</code></td><td>Libraries containing *.proto files.</td></tr>
+<tr><td>external-include-path</td><td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:include-path</code> for <code>protoc</code></td></tr>
 </table>
 
 Tasks
@@ -43,6 +43,7 @@ Tasks
 
 <table>
 <tr><th>name</th><th>description</th></tr>
-<tr><td>generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the `Compile` scope.</td></tr>
-<tr><td>clean</td><td>Removes everything in $protobuf-target</td></tr>
+<tr><td>generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
+<tr><td>clean</td><td>Removes everything in <code>generated-source</code></td></tr>
+<tr><td>unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>external-inlude-patch</code></td></tr>
 </table>
