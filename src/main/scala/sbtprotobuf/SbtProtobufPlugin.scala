@@ -22,7 +22,7 @@ object SbtProtobufPlugin extends Plugin {
   val protoGenerate = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
   val protoUnpackDependencies = TaskKey[Seq[File]]("unpack-dependencies", "Unpack dependencies.")
 
-  override lazy val settings = inConfig(Protobuf)(Seq(
+  lazy val protobufSettings: Seq[Setting[_]] = inConfig(Protobuf)(Seq[Setting[_]](
     protoSourcePath <<= (sourceDirectory in Compile) { _ / "protobuf" },
     protoGeneratedSourcePath <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     protoExternalProtobufIncludePath <<= target(_ / "protobuf_external"),
@@ -37,7 +37,7 @@ object SbtProtobufPlugin extends Plugin {
 
     protoGenerate <<= protoSourceGeneratorTask,
     protoGenerate <<= protoGenerate.dependsOn(protoUnpackDependencies)
-  )) ++ Seq(
+  )) ++ Seq[Setting[_]](
     sourceGenerators in Compile <+= (protoGenerate in Protobuf).identity,
     cleanFiles <+= (protoGeneratedSourcePath in Protobuf).identity,
     libraryDependencies <+= (protoVersion in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
