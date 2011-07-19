@@ -12,7 +12,7 @@ And add the following lines
 
     resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
 
-    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.0.1"
+    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.0.2"
 
 
 You can specify dependencies that contain `*.proto` files with the `protoLibraryDependencies`/`protobuf:library-dependencies` setting.
