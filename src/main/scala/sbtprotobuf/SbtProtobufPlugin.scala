@@ -41,7 +41,8 @@ object SbtProtobufPlugin extends Plugin {
     sourceGenerators in Compile <+= (protoGenerate in Protobuf).identity,
     cleanFiles <+= (protoGeneratedSourcePath in Protobuf).identity,
     libraryDependencies <+= (protoVersion in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
-    libraryDependencies <++= (protoLibraryDependencies in Protobuf).identity
+    libraryDependencies <++= (protoLibraryDependencies in Protobuf).identity,
+    managedSourceDirectories in Compile <+= (protoGeneratedSourcePath in Protobuf).identity
   )
 
   private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) =
