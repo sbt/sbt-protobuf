@@ -6,43 +6,38 @@ import Keys._
 
 import java.io.File
 
-
 object SbtProtobufPlugin extends Plugin {
   val Protobuf = config("protobuf")
 
-  val protoSourcePath = SettingKey[File]("source-path", "The path containing the *.proto files.")
-  val protoGeneratedSourcePath = SettingKey[File]("generated-source-path", "The path for the generated protobuf java code.")
-  val protoIncludePaths = SettingKey[Seq[File]]("include-path")
-  val protoLibraryDependencies = SettingKey[Seq[sbt.ModuleID]]("library-dependencies", "Libraries containing *.proto files.")
+  val protoSource = SettingKey[File]("proto-source", "The path containing the *.proto files.")
+  val managedSourceDirectory = SettingKey[File]("managed-source-directory", "The path for the generated protobuf java code.")
+  val includePaths = SettingKey[Seq[File]]("include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
-  val protoVersion = SettingKey[String]("version", "The version of the protobuf library.")
-  val protoExternalProtobufIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
+  val externalIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
 
-  val protoClean = TaskKey[Unit]("clean", "Clean just the files generated from protobuf sources.")
-  val protoGenerate = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
-  val protoUnpackDependencies = TaskKey[Seq[File]]("unpack-dependencies", "Unpack dependencies.")
+  val generate = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
+  val unpackDependencies = TaskKey[Seq[File]]("unpack-dependencies", "Unpack dependencies.")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(Protobuf)(Seq[Setting[_]](
-    protoSourcePath <<= (sourceDirectory in Compile) { _ / "protobuf" },
-    protoGeneratedSourcePath <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
-    protoExternalProtobufIncludePath <<= target(_ / "protobuf_external"),
-    protoIncludePaths <<= (protoSourcePath in Protobuf)(identity(_) :: Nil),
-    protoIncludePaths <+= (protoExternalProtobufIncludePath in Protobuf).identity,
-    protoLibraryDependencies := Nil,
+    protoSource <<= (sourceDirectory in Compile) { _ / "protobuf" },
+    managedSourceDirectory <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
+    externalIncludePath <<= target(_ / "protobuf_external"),
+    includePaths <<= (protoSource in Protobuf)(identity(_) :: Nil),
+    includePaths <+= (externalIncludePath in Protobuf).identity,
+    libraryDependencies := Nil,
     protoc := "protoc",
-    protoVersion := "2.4.1",
+    version := "2.4.1",
 
-    protoClean <<= protoCleanTask,
-    protoUnpackDependencies <<= protoUnpackDependenciesTask,
+    unpackDependencies <<= unpackDependenciesTask,
 
-    protoGenerate <<= protoSourceGeneratorTask,
-    protoGenerate <<= protoGenerate.dependsOn(protoUnpackDependencies)
+    generate <<= sourceGeneratorTask,
+    generate <<= generate.dependsOn(unpackDependencies)
   )) ++ Seq[Setting[_]](
-    sourceGenerators in Compile <+= (protoGenerate in Protobuf).identity,
-    cleanFiles <+= (protoGeneratedSourcePath in Protobuf).identity,
-    libraryDependencies <+= (protoVersion in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
-    libraryDependencies <++= (protoLibraryDependencies in Protobuf).identity,
-    managedSourceDirectories in Compile <+= (protoGeneratedSourcePath in Protobuf).identity
+    sourceGenerators in Compile <+= (generate in Protobuf).identity,
+    cleanFiles <+= (managedSourceDirectory in Protobuf).identity,
+    libraryDependencies <+= (version in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
+    libraryDependencies <++= (libraryDependencies in Protobuf).identity,
+    managedSourceDirectories in Compile <+= (managedSourceDirectory in Protobuf).identity
   )
 
   private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) =
@@ -89,18 +84,18 @@ object SbtProtobufPlugin extends Plugin {
     }
   }
 
-  private def protoCleanTask = (streams, protoGeneratedSourcePath in Protobuf) map {
+  private def protoCleanTask = (streams, managedSourceDirectory in Protobuf) map {
     (out, target) =>
       out.log.info("Cleaning generated java under " + target)
       IO.delete(target)
   }
 
-  private def protoSourceGeneratorTask = (streams, protoSourcePath in Protobuf, protoGeneratedSourcePath in Protobuf, protoIncludePaths in Protobuf) map {
+  private def sourceGeneratorTask = (streams, protoSource in Protobuf, managedSourceDirectory in Protobuf, includePaths in Protobuf) map {
     (out, srcDir, targetDir, includePaths) =>
       compileChanged(srcDir, targetDir, includePaths, out.log)
   }
 
-  private def protoUnpackDependenciesTask = (streams, protoLibraryDependencies in Protobuf, protoExternalProtobufIncludePath in Protobuf) map {
+  private def unpackDependenciesTask = (streams, libraryDependencies in Protobuf, externalIncludePath in Protobuf) map {
     (out, deps, extractTarget) =>
       unpack(deps, extractTarget, out.log)
   }
