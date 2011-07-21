@@ -71,7 +71,7 @@ object SbtProtobufPlugin extends Plugin {
 
         (target ** "*.java").get
       } else {
-        log.info("No protobuf files to compile")
+        log.debug("No protobuf files to compile")
         (target ** "*.java").get
       }
     }.getOrElse(Seq())
