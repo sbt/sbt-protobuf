@@ -84,12 +84,6 @@ object SbtProtobufPlugin extends Plugin {
     }
   }
 
-  private def protoCleanTask = (streams, managedSourceDirectory in Protobuf) map {
-    (out, target) =>
-      out.log.info("Cleaning generated java under " + target)
-      IO.delete(target)
-  }
-
   private def sourceGeneratorTask = (streams, protoSource in Protobuf, managedSourceDirectory in Protobuf, includePaths in Protobuf) map {
     (out, srcDir, targetDir, includePaths) =>
       compileChanged(srcDir, targetDir, includePaths, out.log)
