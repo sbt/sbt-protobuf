@@ -27,6 +27,10 @@ object SbtProtobufPlugin extends Plugin {
     protoc := "protoc",
     version := "2.4.1",
 
+    managedClasspath <<= (classpathTypes in protobufConfig, update) map { (ct, report) =>
+      Classpaths.managedJars(protobufConfig, ct, report)
+    },
+
     unpackDependencies <<= unpackDependenciesTask,
 
     generate <<= sourceGeneratorTask,
