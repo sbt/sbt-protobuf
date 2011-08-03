@@ -24,7 +24,6 @@ object SbtProtobufPlugin extends Plugin {
     externalIncludePath <<= target(_ / "protobuf_external"),
     includePaths <<= (protoSource in Protobuf)(identity(_) :: Nil),
     includePaths <+= (externalIncludePath in Protobuf).identity,
-    libraryDependencies := Nil,
     protoc := "protoc",
     version := "2.4.1",
 
@@ -36,7 +35,6 @@ object SbtProtobufPlugin extends Plugin {
     sourceGenerators in Compile <+= (generate in Protobuf).identity,
     cleanFiles <+= (managedSourceDirectory in Protobuf).identity,
     libraryDependencies <+= (version in Protobuf)("com.google.protobuf" % "protobuf-java" % _),
-    libraryDependencies <++= (libraryDependencies in Protobuf).identity,
     managedSourceDirectories in Compile <+= (managedSourceDirectory in Protobuf).identity
   )
 
