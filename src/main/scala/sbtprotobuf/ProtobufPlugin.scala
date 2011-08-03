@@ -6,7 +6,7 @@ import Keys._
 
 import java.io.File
 
-object SbtProtobufPlugin extends Plugin {
+object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
 
   val protoSource = SettingKey[File]("proto-source", "The path containing the *.proto files.")
