@@ -1,0 +1,4 @@
+* Making use of more predefined setting keys (eg. `javaSource in protobufConfig`)
+* Proto-dependencies must now be declared via the provided configuration (see [README](https://github.com/gseitz/sbt-protobuf/README.md))
+* Only `com.google.protobuf.protobuf-java` in the specified version will be added to the libraryDependencies automatically. All other dependencies must be declared manually in favor of a clearer build definition with less magic (sbt alone has enough of that).
+* Minor cleanup and fixes
