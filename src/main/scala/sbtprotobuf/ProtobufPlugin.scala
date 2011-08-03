@@ -39,7 +39,8 @@ object ProtobufPlugin extends Plugin {
     sourceGenerators in Compile <+= (generate in protobufConfig).identity,
     cleanFiles <+= (managedSourceDirectory in protobufConfig).identity,
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
-    managedSourceDirectories in Compile <+= (managedSourceDirectory in protobufConfig).identity
+    managedSourceDirectories in Compile <+= (managedSourceDirectory in protobufConfig).identity,
+    ivyConfigurations += protobufConfig
   )
 
   private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) =
