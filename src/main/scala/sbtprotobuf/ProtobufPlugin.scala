@@ -46,7 +46,7 @@ object ProtobufPlugin extends Plugin {
   private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
       val schemas = (PathFinder(sources) ** "*.proto").get
-      val incPath = (sources +: includePaths).map(_.absolutePath).mkString("-I", " -I", "")
+      val incPath = includePaths.map(_.absolutePath).mkString("-I", " -I", "")
       <x>protoc {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
