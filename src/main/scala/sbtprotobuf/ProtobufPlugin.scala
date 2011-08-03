@@ -10,7 +10,6 @@ object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
 
   val protoSource = SettingKey[File]("proto-source", "The path containing the *.proto files.")
-  val managedSourceDirectory = SettingKey[File]("managed-source-directory", "The path for the generated protobuf java code.")
   val includePaths = SettingKey[Seq[File]]("include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
   val externalIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
@@ -20,7 +19,7 @@ object ProtobufPlugin extends Plugin {
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
     protoSource <<= (sourceDirectory in Compile) { _ / "protobuf" },
-    managedSourceDirectory <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
+    javaSource in protobufConfig <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     includePaths <<= (protoSource in protobufConfig)(identity(_) :: Nil),
     includePaths <+= (externalIncludePath in protobufConfig).identity,
@@ -37,9 +36,9 @@ object ProtobufPlugin extends Plugin {
     generate <<= generate.dependsOn(unpackDependencies)
   )) ++ Seq[Setting[_]](
     sourceGenerators in Compile <+= (generate in protobufConfig).identity,
-    cleanFiles <+= (managedSourceDirectory in protobufConfig).identity,
+    cleanFiles <+= (javaSource in protobufConfig).identity,
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
-    managedSourceDirectories in Compile <+= (managedSourceDirectory in protobufConfig).identity,
+    managedSourceDirectories in Compile <+= (javaSource in protobufConfig).identity,
     ivyConfigurations += protobufConfig
   )
 
@@ -85,7 +84,7 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def sourceGeneratorTask = (streams, protoSource in protobufConfig, managedSourceDirectory in protobufConfig, includePaths in protobufConfig) map {
+  private def sourceGeneratorTask = (streams, protoSource in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig) map {
     (out, srcDir, targetDir, includePaths) =>
       compileChanged(srcDir, targetDir, includePaths, out.log)
   }
