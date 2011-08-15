@@ -41,7 +41,7 @@ object ProtobufPlugin extends Plugin {
     ivyConfigurations += protobufConfig
   )
 
-  private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) =
+  private def executeProtoc(sources: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
       val schemas = (PathFinder(sources) ** "*.proto").get
       val incPath = includePaths.map(_.absolutePath).mkString("-I", " -I", "")
@@ -51,26 +51,17 @@ object ProtobufPlugin extends Plugin {
     }
 
 
-  private def compileChanged(sources: File, target: File, includePaths: Seq[File], log: Logger) = {
+  private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) = {
     val schemas = (PathFinder(sources) ** "*.proto").get
-    schemas.map(_.lastModified).toList.sortWith(_ > _).headOption.map { mostRecentSchemaTimestamp =>
-      if (mostRecentSchemaTimestamp > target.lastModified) {
-        target.mkdirs()
-        log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
-        schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
+    target.mkdirs()
+    log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
+    schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
 
-        val exitCode = compile(sources, target, includePaths, log)
-        if (exitCode == 0)
-          target.setLastModified(mostRecentSchemaTimestamp)
-        else
-          error("protoc returned exit code: %d" format exitCode)
+    val exitCode = executeProtoc(sources, target, includePaths, log)
+    if (exitCode != 0)
+      error("protoc returned exit code: %d" format exitCode)
 
-        (target ** "*.java").get
-      } else {
-        log.debug("No protobuf files to compile")
-        (target ** "*.java").get
-      }
-    }.getOrElse(Seq())
+    (target ** "*.java").get.toSet
   }
 
   private val protoFilter = new SimpleFilter((name: String) => name.endsWith(".proto"))
@@ -83,9 +74,12 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def sourceGeneratorTask = (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig) map {
-    (out, srcDir, targetDir, includePaths) =>
-      compileChanged(srcDir, targetDir, includePaths, out.log)
+  private def sourceGeneratorTask = (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig, cacheDirectory) map {
+    (out, srcDir, targetDir, includePaths, cache) =>
+      val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
+        compile(srcDir, targetDir, includePaths, out.log)
+      }
+      cachedCompile((srcDir ** "*.proto").get.toSet).toSeq
   }
 
   private def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
