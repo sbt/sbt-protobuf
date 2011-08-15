@@ -9,7 +9,6 @@ import java.io.File
 object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
 
-  val protoSource = SettingKey[File]("proto-source", "The path containing the *.proto files.")
   val includePaths = SettingKey[Seq[File]]("include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
   val externalIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
@@ -18,10 +17,10 @@ object ProtobufPlugin extends Plugin {
   val unpackDependencies = TaskKey[Seq[File]]("unpack-dependencies", "Unpack dependencies.")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
-    protoSource <<= (sourceDirectory in Compile) { _ / "protobuf" },
+    sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
-    includePaths <<= (protoSource in protobufConfig)(identity(_) :: Nil),
+    includePaths <<= (sourceDirectory in protobufConfig)(identity(_) :: Nil),
     includePaths <+= (externalIncludePath in protobufConfig).identity,
     protoc := "protoc",
     version := "2.4.1",
@@ -84,7 +83,7 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def sourceGeneratorTask = (streams, protoSource in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig) map {
+  private def sourceGeneratorTask = (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig) map {
     (out, srcDir, targetDir, includePaths) =>
       compileChanged(srcDir, targetDir, includePaths, out.log)
   }
