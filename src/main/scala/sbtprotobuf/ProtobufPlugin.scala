@@ -43,9 +43,9 @@ object ProtobufPlugin extends Plugin {
     ivyConfigurations += protobufConfig
   )
 
-  private def executeProtoc(sources: File, target: File, includePaths: Seq[File], log: Logger) =
+  private def executeProtoc(srcDir: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
-      val schemas = (sources ** "*.proto").get
+      val schemas = (srcDir ** "*.proto").get
       val incPath = includePaths.map(_.absolutePath).mkString("-I", " -I", "")
       <x>protoc {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
     } catch { case e: Exception =>
@@ -53,13 +53,13 @@ object ProtobufPlugin extends Plugin {
     }
 
 
-  private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) = {
-    val schemas = (sources ** "*.proto").get
+  private def compile(srcDir: File, target: File, includePaths: Seq[File], log: Logger) = {
+    val schemas = (srcDir ** "*.proto").get
     target.mkdirs()
     log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
     schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
 
-    val exitCode = executeProtoc(sources, target, includePaths, log)
+    val exitCode = executeProtoc(srcDir, target, includePaths, log)
     if (exitCode != 0)
       error("protoc returned exit code: %d" format exitCode)
 
