@@ -6,22 +6,22 @@ import Keys._
 
 import java.io.File
 
+case class UnpackedDependencies(dir: File, files: Seq[File])
+
 object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
 
-  val includePaths = SettingKey[Seq[File]]("include-paths", "The paths that contain *.proto dependencies.")
+  val includePaths = TaskKey[Seq[File]]("include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
   val externalIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
 
   val generate = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
-  val unpackDependencies = TaskKey[Seq[File]]("unpack-dependencies", "Unpack dependencies.")
+  val unpackDependencies = TaskKey[UnpackedDependencies]("unpack-dependencies", "Unpack dependencies.")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
     sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
-    includePaths <<= (sourceDirectory in protobufConfig)(identity(_) :: Nil),
-    includePaths <+= (externalIncludePath in protobufConfig).identity,
     protoc := "protoc",
     version := "2.4.1",
 
@@ -31,8 +31,11 @@ object ProtobufPlugin extends Plugin {
 
     unpackDependencies <<= unpackDependenciesTask,
 
-    generate <<= sourceGeneratorTask,
-    generate <<= generate.dependsOn(unpackDependencies)
+    includePaths <<= (sourceDirectory in protobufConfig) map (identity(_) :: Nil),
+    includePaths <+= unpackDependencies map { _.dir },
+
+    generate <<= sourceGeneratorTask
+
   )) ++ Seq[Setting[_]](
     sourceGenerators in Compile <+= (generate in protobufConfig).identity,
     cleanFiles <+= (javaSource in protobufConfig).identity,
@@ -83,7 +86,8 @@ object ProtobufPlugin extends Plugin {
 
   private def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
     (out, deps, extractTarget) =>
-      unpack(deps.map(_.data), extractTarget, out.log)
+      val extractedFiles = unpack(deps.map(_.data), extractTarget, out.log)
+      UnpackedDependencies(extractTarget, extractedFiles)
   }
 
 }
