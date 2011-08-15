@@ -45,7 +45,7 @@ object ProtobufPlugin extends Plugin {
 
   private def executeProtoc(sources: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
-      val schemas = (PathFinder(sources) ** "*.proto").get
+      val schemas = (sources ** "*.proto").get
       val incPath = includePaths.map(_.absolutePath).mkString("-I", " -I", "")
       <x>protoc {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
     } catch { case e: Exception =>
@@ -54,7 +54,7 @@ object ProtobufPlugin extends Plugin {
 
 
   private def compile(sources: File, target: File, includePaths: Seq[File], log: Logger) = {
-    val schemas = (PathFinder(sources) ** "*.proto").get
+    val schemas = (sources ** "*.proto").get
     target.mkdirs()
     log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
     schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
