@@ -40,7 +40,6 @@ object ProtobufPlugin extends Plugin {
     sourceGenerators in Compile <+= (generate in protobufConfig).identity,
     cleanFiles <+= (javaSource in protobufConfig).identity,
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
-    managedSourceDirectories in Compile <+= (javaSource in protobufConfig).identity,
     ivyConfigurations += protobufConfig
   )
 
