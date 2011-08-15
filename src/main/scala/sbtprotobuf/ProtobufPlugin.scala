@@ -64,11 +64,10 @@ object ProtobufPlugin extends Plugin {
     (target ** "*.java").get.toSet
   }
 
-  private val protoFilter = new SimpleFilter((name: String) => name.endsWith(".proto"))
   private def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {
     IO.createDirectory(extractTarget)
     deps.flatMap { dep =>
-      val seq = IO.unzip(dep, extractTarget, protoFilter).toSeq
+      val seq = IO.unzip(dep, extractTarget, "*.proto").toSeq
       if (!seq.isEmpty) log.debug("Extracted " + seq.mkString(","))
       seq
     }
