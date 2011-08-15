@@ -19,7 +19,7 @@ object ProtobufPlugin extends Plugin {
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
     protoSource <<= (sourceDirectory in Compile) { _ / "protobuf" },
-    javaSource in protobufConfig <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
+    javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     includePaths <<= (protoSource in protobufConfig)(identity(_) :: Nil),
     includePaths <+= (externalIncludePath in protobufConfig).identity,
