@@ -1,0 +1,9 @@
+Externally visible changes:
+
+* Remove `protoSource` in favor of the built-in key `sourceDirectory`.
+* `includePaths` is now a TaskKey.
+
+Internal changes:
+
+* Use SBT's built-in [uptodate checking](https://github.com/harrah/xsbt/wiki/Common-Tasks) for the proto-files in `sourceDirectory`.
+* Cleanups based on Mark's [review](https://github.com/harrah/xsbt/issues/144).
