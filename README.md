@@ -55,6 +55,8 @@ By default, the compiled proto files are created in `<project-dir>/target/<scala
 
     javaSource in PB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
 
+**WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
+
 ## Scope
 All settings and tasks are in the `protobuf` scope. If you want to execute the `generate` task directly, just run `protobuf:generate`.
 
@@ -63,21 +65,53 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 ## Settings
 
 <table>
-<tr><th>name</th><th>default</th><th>description</th></tr>
-<tr><td>proto-source</td><td><code>"src/main/protobuf"</code></td><td>Path containing *.proto files.</td></tr>
-<tr><td>java-source</td><td><code>"$sourceManaged/compiled_protobuf"</code></td><td>Path for the generated *.java files.</td></tr>
-<tr><td>version</td><td><code>"2.4.1"</code></td><td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td></tr>
-<tr><td>protoc</td><td><code>"protoc"</code></td><td>The path to the 'protoc' executable.</td></tr>
-<tr><td>include-paths</td><td><code>Seq($generated-source, external-include-path)</code></td><td>The path for additional *.proto files.</td></tr>
-<tr><td>external-include-path</td><td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:include-path</code> for <code>protoc</code></td></tr>
+<tr><th>name</th><th>name in shell</th><th>built-in key</th><th>default</th><th>description</th></tr>
+<tr>
+    <td>sourceDirectory</td>
+    <td>source-directory</td>
+    <td>?</td>
+    <td><code>"src/main/protobuf"</code></td><td>Path containing *.proto files.</td>
+</tr>
+<tr>
+    <td>javaSource</td>
+    <td>java-source</td>
+    <td>?</td>
+    <td><code>"$sourceManaged/compiled_protobuf"</code></td>
+    <td>Path for the generated *.java files.</td>
+</tr>
+<tr>
+    <td>version</td>
+    <td>version</td>
+    <td>?</td>
+    <td><code>"2.4.1"</code></td>
+    <td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td>
+</tr>
+<tr>
+    <td>protoc</td>
+    <td>protoc</td>
+    <td></td>
+    <td><code>"protoc"</code></td><td>The path to the 'protoc' executable.</td>
+</tr>
+<tr>
+    <td>includePaths</td>
+    <td>include-paths</td>
+    <td></td>
+    <td><code>Seq($generated-source, external-include-path)</code></td><td>The path for additional *.proto files.</td>
+</tr>
+<tr>
+    <td>externalIncludePath</td>
+    <td>external-include-path</td>
+    <td></td>
+    <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:include-path</code> for <code>protoc</code></td>
+</tr>
 </table>
 
 ## Tasks
 
 <table>
-<tr><th>name</th><th>description</th></tr>
-<tr><td>generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
-<tr><td>unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>external-inlude-patch</code></td></tr>
+<tr><th>name</th><th>shell-name</th><th>description</th></tr>
+<tr><td>generate</td><td>generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
+<tr><td>unpackDependencies</td><td>unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>external-inlude-patch</code></td></tr>
 </table>
 
 ## Credits
