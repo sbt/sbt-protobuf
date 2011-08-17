@@ -35,7 +35,7 @@ To actually "activate" the plugin, its settings need to be included in the build
 ### Declaring dependencies
 Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.java` files, you can specify the dependency like so:
 
-    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % ProtobufPlugin.protobufConfig.name // #1
+    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % PB.protobufConfig.name // #1
 
     libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
 
