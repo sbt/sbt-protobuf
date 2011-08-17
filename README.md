@@ -8,7 +8,7 @@ In your project, create a file for plugin library dependencies `project/plugins/
 
     resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
 
-    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.1" // for sbt-0.10.1
+    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.2" // for sbt-0.10.1
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
