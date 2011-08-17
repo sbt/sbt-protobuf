@@ -6,7 +6,6 @@ import Keys._
 
 import java.io.File
 
-case class UnpackedDependencies(dir: File, files: Seq[File])
 
 object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
@@ -42,6 +41,8 @@ object ProtobufPlugin extends Plugin {
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
     ivyConfigurations += protobufConfig
   )
+
+  case class UnpackedDependencies(dir: File, files: Seq[File])
 
   private def executeProtoc(srcDir: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
