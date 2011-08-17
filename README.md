@@ -69,20 +69,20 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr>
     <td>sourceDirectory</td>
     <td>source-directory</td>
-    <td>?</td>
+    <td>x</td>
     <td><code>"src/main/protobuf"</code></td><td>Path containing *.proto files.</td>
 </tr>
 <tr>
     <td>javaSource</td>
     <td>java-source</td>
-    <td>?</td>
+    <td>x</td>
     <td><code>"$sourceManaged/compiled_protobuf"</code></td>
     <td>Path for the generated *.java files.</td>
 </tr>
 <tr>
     <td>version</td>
     <td>version</td>
-    <td>?</td>
+    <td>x</td>
     <td><code>"2.4.1"</code></td>
     <td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td>
 </tr>
