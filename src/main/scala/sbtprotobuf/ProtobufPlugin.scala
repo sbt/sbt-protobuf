@@ -24,7 +24,7 @@ object ProtobufPlugin extends Plugin {
     protoc := "protoc",
     version := "2.4.1",
 
-    managedClasspath <<= (classpathTypes in protobufConfig, update) map { (ct, report) =>
+    managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
       Classpaths.managedJars(protobufConfig, ct, report)
     },
 
