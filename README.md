@@ -48,7 +48,7 @@ The `*.proto` files of dependencies are extracted and added to the `includePath`
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
-    unmanagedResourceDirectories in Compile <+= (PB.protoSource in PB.protobufConfig).identity,
+    unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig).identity,
 
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
