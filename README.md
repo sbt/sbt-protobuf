@@ -1,5 +1,5 @@
-# sbt-protobuf
-A plugin for sbt-0.10.x that transforms *.proto files into gazillion-loc java files.
+# sbt-protobuf-scalabuff
+A plugin for sbt-0.10.x that transforms *.proto files into scala files via SandroGrzicic/ScalaBuff
 
 ## Usage
 
@@ -8,34 +8,34 @@ In your project, create a file for plugin library dependencies `project/plugins/
 
     resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
 
-    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.2" // for sbt-0.10.1
+    addSbtPlugin("com.github.gseitz.sbt-protobuf" % "scalabuff" % "0.3-SNAPSHOT") // requires sbt-0.11.x
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
 
 ##### build.sbt
 
-    import sbtprotobuf.{ProtobufPlugin=>PB}
+    import sbtprotobuf.{ScalaBuffPlugin=>SB}
 
-    seq(PB.protobufSettings: _*)
+    seq(SB.scalaBuffSettings: _*)
 
 ##### build.scala
 
-    import sbtprotobuf.{ProtobufPlugin=>PB}
+    import sbtprotobuf.{ScalaBuffPlugin=>SB}
 
     object MyBuild extends Build {
       lazy val MyProject(
         id = "myproject",
         base = file("."),
-        settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq( /* custom settings here */ )
+        settings = Defaults.defaultSettings ++ SB.scalaBuffSettings ++ Seq( /* custom settings here */ )
       )
     }
 
 
 ### Declaring dependencies
-Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.java` files, you can specify the dependency like so:
+Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.scala` files, you can specify the dependency like so:
 
-    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % PB.protobufConfig.name // #1
+    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % SB.protobufConfig.name // #1
 
     libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
 
@@ -43,7 +43,7 @@ Line #1 tells `sbt-protobuf` that the specified artifact contains *.proto files 
 
 Line #2 adds the artifact to the regular compile:libraryDependencies.
 
-The `*.proto` files of dependencies are extracted and added to the `includePath` parameter for `protoc`, but are not compiled.
+The `*.proto` files of dependencies are extracted and added to the `includePath` parameter for `ScalaBuff`, but are not compiled.
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
@@ -53,7 +53,7 @@ The `*.proto` files of dependencies are extracted and added to the `includePath`
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
-    javaSource in PB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
+    javaSource in SB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
