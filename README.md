@@ -35,7 +35,7 @@ To actually "activate" the plugin, its settings need to be included in the build
 ### Declaring dependencies
 Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.scala` files, you can specify the dependency like so:
 
-    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % SB.protobufConfig.name // #1
+    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % SB.scalaBuffConfig.name // #1
 
     libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
 
@@ -48,17 +48,17 @@ The `*.proto` files of dependencies are extracted and added to the `includePath`
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
-    unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig).identity,
+    unmanagedResourceDirectories in Compile <+= (sourceDirectory in SB.scalaBuffConfig).identity,
 
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
-    generatedSource in SB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
+    generatedSource in SB.scalaBuffConfig <<= (sourceDirectory in Compile)(_ / "generated")
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
 ## Scope
-All settings and tasks are in the `protobuf` scope. If you want to execute the `generate` task directly, just run `protobuf:generate`.
+All settings and tasks are in the `scalabuff` scope. If you want to execute the `generate` task directly, just run `scalabuff:generate`.
 
 
 
