@@ -53,7 +53,7 @@ The `*.proto` files of dependencies are extracted and added to the `includePath`
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
-    javaSource in SB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
+    generatedSource in SB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
