@@ -15,8 +15,9 @@ object ScalaBuffPlugin {
   lazy val scalaBuffSettings: Seq[Setting[_]] = Internals.scopedSettings(scalaBuffConfig) ++ Seq(
     generatedSource in scalaBuffConfig <<= (sourceManaged in Compile) { _ / "compiled_scalabuff" },
     scalaSource in scalaBuffConfig <<= (generatedSource in scalaBuffConfig).identity,
+    version in scalaBuffConfig := "0.10-SNAPSHOT",
     generatorExecution in scalaBuffConfig := ((srcDir: File, target: File, includePaths: Seq[File], log:Logger) => executeScalaBuff(srcDir, target, includePaths, log)),
-    libraryDependencies <+= scalaVersion(sv => "scalabuffruntime" % "scalabuffruntime_%s".format(sv) % "0.10-SNAPSHOT")
+    libraryDependencies <+= (scalaVersion, version in scalaBuffConfig)((sv, sbv) => "scalabuffruntime" % "scalabuffruntime_%s".format(sv) % sbv)
   )
 
   private def executeScalaBuff(srcDir: File, target: File, includePaths: Seq[File], log: Logger) = {
