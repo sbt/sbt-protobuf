@@ -23,10 +23,10 @@ object ProtobufPlugin extends Plugin {
 
   lazy val protobufSettings: Seq[Setting[_]] = Internals.scopedSettings(protobufConfig) ++ Seq[Setting[_]](
     protoc in protobufConfig := "protoc",
-    generatorExecution <<= (protoc)map(exec => {
+    generatorExecution in protobufConfig <<= (protoc in protobufConfig)map(exec => {
         (srcDir: File, target: File, includePaths: Seq[File], log: Logger) =>
           executeProtoc(exec, srcDir, target, includePaths, log) } ),
-    javaSource <<= (generatedSource in protobufConfig).identity
+    javaSource in protobufConfig <<= (generatedSource in protobufConfig).identity
   )
 
   object Internals {
@@ -94,9 +94,9 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  def sourceGeneratorTaskFactory: (Keys.TaskStreams, GeneratorExecution, File, File, Seq[File], File) => Seq[File] = {
+  def sourceGeneratorTaskFactory(config: Configuration): (Keys.TaskStreams, GeneratorExecution, File, File, Seq[File], File) => Seq[File] = {
     (out, executions, srcDir, targetDir, includePaths, cache) =>
-      val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) {
+      val cachedCompile = FileFunction.cached(cache / ("protobuf_" + config.name), inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) {
         (in: Set[File]) =>
           compile(executions, srcDir, targetDir, includePaths, out.log)
       }
@@ -104,7 +104,7 @@ object ProtobufPlugin extends Plugin {
   }
 
   private def sourceGeneratorTask(config: Configuration) = (streams, generatorExecution in config, sourceDirectory in config, generatedSource in config, includePaths in config, cacheDirectory) map {
-    sourceGeneratorTaskFactory
+    sourceGeneratorTaskFactory(config)
   }
 
   private def unpackDependenciesTask(config: Configuration) = (streams, managedClasspath in config, externalIncludePath in config) map {
