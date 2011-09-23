@@ -16,7 +16,7 @@ object ScalaBuffPlugin {
     generatedSource in scalaBuffConfig <<= (sourceManaged in Compile) { _ / "compiled_scalabuff" },
     scalaSource in scalaBuffConfig <<= (generatedSource in scalaBuffConfig).identity,
     generatorExecution in scalaBuffConfig := ((srcDir: File, target: File, includePaths: Seq[File], log:Logger) => executeScalaBuff(srcDir, target, includePaths, log)),
-    libraryDependencies <+= scalaVersion(sv => "scalabuffruntime" % "scalabuffruntime_%s".format(sv) % "0.9")
+    libraryDependencies <+= scalaVersion(sv => "scalabuffruntime" % "scalabuffruntime_%s".format(sv) % "0.10-SNAPSHOT")
   )
 
   private def executeScalaBuff(srcDir: File, target: File, includePaths: Seq[File], log: Logger) = {
