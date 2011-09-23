@@ -28,4 +28,9 @@ object ScalaBuffPlugin {
     0
   }
 
+  def addProtocCompatibility = libraryDependencies <++= (version in scalaBuffConfig)(sbv => Seq(
+    "scalabuffruntime" % "scalabuffruntime_2.9.1" % sbv % protobufConfig.name,
+    "scalabuffruntime" % "scalabuffruntime_2.9.1" % sbv)
+  )
+
 }
