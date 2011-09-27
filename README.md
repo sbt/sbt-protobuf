@@ -1,14 +1,23 @@
 # sbt-protobuf
-A plugin for sbt-0.10.x that transforms *.proto files into gazillion-loc java files.
+A plugin for sbt-0.(10|11).x that transforms *.proto files into gazillion-loc java files.
 
 ## Usage
 
 ### Adding the plugin dependency
 In your project, create a file for plugin library dependencies `project/plugins/build.sbt` and add the following lines:
 
+#### sbt-0.10.1
+
     resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
 
-    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.2" // for sbt-0.10.1
+    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.2"
+    
+#### sbt-0.11.0
+
+    resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
+
+    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.2")
+    
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
