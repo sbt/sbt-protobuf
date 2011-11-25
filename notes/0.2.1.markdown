@@ -1,0 +1,2 @@
+* `javaSource in protobufConfig` is now automatically added to `managedSources in Compile`
+* Actually use the executable specified in the `protoc` setting key.
