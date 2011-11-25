@@ -44,23 +44,23 @@ object ProtobufPlugin extends Plugin {
 
   case class UnpackedDependencies(dir: File, files: Seq[File])
 
-  private def executeProtoc(srcDir: File, target: File, includePaths: Seq[File], log: Logger) =
+  private def executeProtoc(protocCommand: String, srcDir: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
       val schemas = (srcDir ** "*.proto").get
       val incPath = includePaths.map(_.absolutePath).mkString("-I", " -I", "")
-      <x>protoc {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
+      <x>{protocCommand} {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
 
 
-  private def compile(srcDir: File, target: File, includePaths: Seq[File], log: Logger) = {
+  private def compile(protocCommand: String, srcDir: File, target: File, includePaths: Seq[File], log: Logger) = {
     val schemas = (srcDir ** "*.proto").get
     target.mkdirs()
     log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
     schemas.foreach { schema => log.info("Compiling schema %s" format schema) }
 
-    val exitCode = executeProtoc(srcDir, target, includePaths, log)
+    val exitCode = executeProtoc(protocCommand, srcDir, target, includePaths, log)
     if (exitCode != 0)
       error("protoc returned exit code: %d" format exitCode)
 
@@ -76,10 +76,10 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def sourceGeneratorTask = (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig, cacheDirectory) map {
-    (out, srcDir, targetDir, includePaths, cache) =>
+  private def sourceGeneratorTask = (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig, cacheDirectory, protoc) map {
+    (out, srcDir, targetDir, includePaths, cache, protocCommand) =>
       val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(srcDir, targetDir, includePaths, out.log)
+        compile(protocCommand, srcDir, targetDir, includePaths, out.log)
       }
       cachedCompile((srcDir ** "*.proto").get.toSet).toSeq
   }
