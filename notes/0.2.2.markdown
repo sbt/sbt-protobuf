@@ -1,0 +1,1 @@
+* `javaSource in protobufConfig` is now automatically added to `managedSourceDirectories in Compile` (fixes [#6](https://github.com/gseitz/sbt-protobuf/pull/6))
