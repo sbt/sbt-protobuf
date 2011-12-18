@@ -1,0 +1,1 @@
+* `javaSource in protobufConfig` is now automatically added to `managedSourceDirectories in Compile` (and not `managedSources in Compile`)
