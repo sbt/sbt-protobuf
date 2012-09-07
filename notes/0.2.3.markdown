@@ -1,0 +1,1 @@
+* Spaces in paths weren't properly escaped and caused `protoc` to bail out. (fixes [#6](https://github.com/sbt/sbt-protobuf/issues/12))
