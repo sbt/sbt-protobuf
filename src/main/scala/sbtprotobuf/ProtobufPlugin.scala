@@ -47,9 +47,13 @@ object ProtobufPlugin extends Plugin {
 
   private def executeProtoc(protocCommand: String, srcDir: File, target: File, includePaths: Seq[File], log: Logger) =
     try {
-      val schemas = (srcDir ** "*.proto").get
-      val incPath = includePaths.map(_.absolutePath).mkString("-I", " -I", "")
-      <x>{protocCommand} {incPath} --java_out={target.absolutePath} {schemas.map(_.absolutePath).mkString(" ")}</x> ! log
+      val schemas = (srcDir ** "*.proto").get.map(_.absolutePath)
+      val incPath = includePaths.map("-I" + _.absolutePath)
+      val proc = Process(
+        protocCommand,
+        incPath ++ Seq("--java_out=%s" format target.absolutePath) ++  schemas
+      )
+      proc ! log
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
@@ -90,5 +94,4 @@ object ProtobufPlugin extends Plugin {
       val extractedFiles = unpack(deps.map(_.data), extractTarget, out.log)
       UnpackedDependencies(extractTarget, extractedFiles)
   }
-
 }
