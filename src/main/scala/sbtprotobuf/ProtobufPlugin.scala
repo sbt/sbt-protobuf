@@ -10,12 +10,12 @@ import java.io.File
 object ProtobufPlugin extends Plugin {
   val protobufConfig = config("protobuf")
 
-  val includePaths = TaskKey[Seq[File]]("include-paths", "The paths that contain *.proto dependencies.")
-  val protoc = SettingKey[String]("protoc", "The path+name of the protoc executable.")
-  val externalIncludePath = SettingKey[File]("external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
+  val includePaths = TaskKey[Seq[File]]("protobuf-include-paths", "The paths that contain *.proto dependencies.")
+  val protoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
+  val externalIncludePath = SettingKey[File]("protobuf-external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
 
-  val generate = TaskKey[Seq[File]]("generate", "Compile the protobuf sources.")
-  val unpackDependencies = TaskKey[UnpackedDependencies]("unpack-dependencies", "Unpack dependencies.")
+  val generate = TaskKey[Seq[File]]("protobuf-generate", "Compile the protobuf sources.")
+  val unpackDependencies = TaskKey[UnpackedDependencies]("protobuf-unpack-dependencies", "Unpack dependencies.")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
     sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
