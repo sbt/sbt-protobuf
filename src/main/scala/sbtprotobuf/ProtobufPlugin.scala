@@ -36,9 +36,9 @@ object ProtobufPlugin extends Plugin {
     generate <<= sourceGeneratorTask
 
   )) ++ Seq[Setting[_]](
-    sourceGenerators in Compile <+= (generate in protobufConfig).identity,
-    managedSourceDirectories in Compile <+= (javaSource in protobufConfig).identity,
-    cleanFiles <+= (javaSource in protobufConfig).identity,
+    sourceGenerators in Compile <+= generate in protobufConfig,
+    managedSourceDirectories in Compile <+= javaSource in protobufConfig,
+    cleanFiles <+= javaSource in protobufConfig,
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
     ivyConfigurations += protobufConfig
   )
@@ -67,7 +67,7 @@ object ProtobufPlugin extends Plugin {
 
     val exitCode = executeProtoc(protocCommand, srcDir, target, includePaths, log)
     if (exitCode != 0)
-      error("protoc returned exit code: %d" format exitCode)
+      sys.error("protoc returned exit code: %d" format exitCode)
 
     (target ** "*.java").get.toSet
   }
