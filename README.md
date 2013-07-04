@@ -1,23 +1,13 @@
 # sbt-protobuf
-A plugin for sbt-0.(10|11).x that transforms *.proto files into gazillion-loc java files.
+A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc java files.
 
 ## Usage
 
 ### Adding the plugin dependency
 In your project, create a file for plugin library dependencies `project/plugins/build.sbt` and add the following lines:
 
-#### sbt-0.10.1
+    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.0")
 
-    resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
-
-    libraryDependencies += "com.github.gseitz" %% "sbt-protobuf" % "0.2"
-    
-#### sbt-0.11.0
-
-    resolvers += "gseitz@github" at "http://gseitz.github.com/maven/"
-
-    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.2.2")
-    
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
@@ -36,7 +26,9 @@ To actually "activate" the plugin, its settings need to be included in the build
       lazy val MyProject(
         id = "myproject",
         base = file("."),
-        settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq( /* custom settings here */ )
+        settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq(
+            /* custom settings here */
+        )
       )
     }
 
@@ -67,7 +59,7 @@ By default, the compiled proto files are created in `<project-dir>/target/<scala
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
 ## Scope
-All settings and tasks are in the `protobuf` scope. If you want to execute the `generate` task directly, just run `protobuf:generate`.
+All settings and tasks are in the `protobuf` scope. If you want to execute the `protobuf-generate` task directly, just run `protobuf:protobuf-generate`.
 
 
 
@@ -97,21 +89,21 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 </tr>
 <tr>
     <td>protoc</td>
-    <td>protoc</td>
+    <td>protobuf-protoc</td>
     <td></td>
     <td><code>"protoc"</code></td><td>The path to the 'protoc' executable.</td>
 </tr>
 <tr>
     <td>includePaths</td>
-    <td>include-paths</td>
+    <td>protobuf-include-paths</td>
     <td></td>
-    <td><code>Seq($generated-source, external-include-path)</code></td><td>The path for additional *.proto files.</td>
+    <td><code>Seq($generated-source, protobuf-external-include-path)</code></td><td>The path for additional *.proto files.</td>
 </tr>
 <tr>
     <td>externalIncludePath</td>
-    <td>external-include-path</td>
+    <td>protobuf-external-include-path</td>
     <td></td>
-    <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:include-path</code> for <code>protoc</code></td>
+    <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:protobuf-include-path</code> for <code>protoc</code></td>
 </tr>
 </table>
 
@@ -119,8 +111,8 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 
 <table>
 <tr><th>name</th><th>shell-name</th><th>description</th></tr>
-<tr><td>generate</td><td>generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
-<tr><td>unpackDependencies</td><td>unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>external-inlude-patch</code></td></tr>
+<tr><td>generate</td><td>protobuf-generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
+<tr><td>unpackDependencies</td><td>protobuf-unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>protobuf-external-inlude-patch</code></td></tr>
 </table>
 
 ## Credits

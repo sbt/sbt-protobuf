@@ -1,0 +1,11 @@
+* Add LICENSE file ([#14](https://github.com/sbt/sbt-protobuf/issues/14))
+* Add 'protobuf-' prefix for all custom settings/tasks ([#16](https://github.com/sbt/sbt-protobuf/issues/16)).
+* This release drops support for sbt 0.10.x and 0.11.x
+
+----
+
+#### NOTICE
+
+This release **breaks backwards compatibility** in case you were explicitly referring to *sbt-protobuf* specific settings/tasks, either in the shell or passing them as parameters to sbt (e.g. as part of a CI build).
+
+----
