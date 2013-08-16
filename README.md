@@ -23,7 +23,7 @@ To actually "activate" the plugin, its settings need to be included in the build
     import sbtprotobuf.{ProtobufPlugin=>PB}
 
     object MyBuild extends Build {
-      lazy val MyProject(
+      lazy val myproject = MyProject(
         id = "myproject",
         base = file("."),
         settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq(
