@@ -22,7 +22,7 @@ object ProtobufPlugin extends Plugin {
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
-    version := "2.4.1",
+    version := "2.5.0",
 
     managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
       Classpaths.managedJars(protobufConfig, ct, report)
