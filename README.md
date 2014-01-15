@@ -8,7 +8,7 @@ In your project, create a file for plugin library dependencies `project/build.sb
 
     libraryDependencies += "com.google.protobuf" % "protobuf-java" % "2.5.0"
 
-    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.0")
+    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.1")
 
 
 ### Importing sbt-protobuf settings
