@@ -1,0 +1,2 @@
+* Use protobuf `2.5.0` as the default version ([#17](https://github.com/sbt/sbt-protobuf/issues/17)).
+* Allow specifying additional `protoc` options ([#18](https://github.com/sbt/sbt-protobuf/pull/18)).
