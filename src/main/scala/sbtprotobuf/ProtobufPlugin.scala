@@ -24,7 +24,7 @@ object ProtobufPlugin extends Plugin {
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
     version := "2.5.0",
-		protocOptions := Nil,
+    protocOptions := Nil,
 
     managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
       Classpaths.managedJars(protobufConfig, ct, report)
