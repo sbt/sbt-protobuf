@@ -14,6 +14,7 @@ object ProtobufPlugin extends Plugin {
   val protoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
   val externalIncludePath = SettingKey[File]("protobuf-external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
   val protocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
+  val customTargets = SettingKey[Seq[(File,String)]]("protobuf-custom-targets", "Custom targets for protoc: target directory and file extension pattern")
 
   val generate = TaskKey[Seq[File]]("protobuf-generate", "Compile the protobuf sources.")
   val unpackDependencies = TaskKey[UnpackedDependencies]("protobuf-unpack-dependencies", "Unpack dependencies.")
@@ -25,6 +26,7 @@ object ProtobufPlugin extends Plugin {
     protoc := "protoc",
     version := "2.5.0",
     protocOptions := Nil,
+    customTargets := Nil,
 
     managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
       Classpaths.managedJars(protobufConfig, ct, report)
@@ -41,6 +43,7 @@ object ProtobufPlugin extends Plugin {
     sourceGenerators in Compile <+= generate in protobufConfig,
     managedSourceDirectories in Compile <+= javaSource in protobufConfig,
     cleanFiles <+= javaSource in protobufConfig,
+    cleanFiles <++= (customTargets in protobufConfig){_.map{_._1}},
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
     ivyConfigurations += protobufConfig
   )
@@ -61,10 +64,14 @@ object ProtobufPlugin extends Plugin {
     }
 
 
-  private def compile(protocCommand: String, srcDir: File, target: File, includePaths: Seq[File], protocOptions: Seq[String], log: Logger) = {
+  private def compile(protocCommand: String, srcDir: File, target: File, includePaths: Seq[File], protocOptions: Seq[String], otherTargets: Seq[(File, String)], log: Logger) = {
     val schemas = (srcDir ** "*.proto").get
+    val otherTargetsDirs = otherTargets.map(_._1)
+
     target.mkdirs()
-    log.info("Compiling %d protobuf files to %s".format(schemas.size, target))
+    otherTargetsDirs.map(_.mkdirs())
+
+    log.info("Compiling %d protobuf files to %s".format(schemas.size, (otherTargetsDirs :+ target).mkString(",")))
     log.debug("protoc options:")
     protocOptions.map("\t"+_).foreach(log.debug(_))
     schemas.foreach(schema => log.info("Compiling schema %s" format schema))
@@ -73,7 +80,12 @@ object ProtobufPlugin extends Plugin {
     if (exitCode != 0)
       sys.error("protoc returned exit code: %d" format exitCode)
 
-    (target ** "*.java").get.toSet
+    log.info("Compiling protobuf. Target value is %s".format(target.absolutePath))
+    otherTargetsDirs.foreach{ dir =>
+      log.info("Custom target: %s".format(dir.absolutePath))
+    }
+
+    ((target ** "*.java").get ++ otherTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
   }
 
   private def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {
@@ -85,10 +97,11 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def sourceGeneratorTask = (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig, protocOptions in protobufConfig, cacheDirectory, protoc) map {
-    (out, srcDir, targetDir, includePaths, protocOpts, cache, protocCommand) =>
+  private def sourceGeneratorTask =
+    (streams, sourceDirectory in protobufConfig, javaSource in protobufConfig, includePaths in protobufConfig, protocOptions in protobufConfig, customTargets in protobufConfig, cacheDirectory, protoc) map {
+    (out, srcDir, targetDir, includePaths, protocOpts, otherTargets, cache, protocCommand) =>
       val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(protocCommand, srcDir, targetDir, includePaths, protocOpts, out.log)
+        compile(protocCommand, srcDir, targetDir, includePaths, protocOpts, otherTargets, out.log)
       }
       cachedCompile((srcDir ** "*.proto").get.toSet).toSeq
   }
