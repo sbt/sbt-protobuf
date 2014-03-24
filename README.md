@@ -1,5 +1,5 @@
 # sbt-protobuf
-A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc java files.
+A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Java source files, and potentially to other languages too.
 
 ## Usage
 
@@ -61,6 +61,24 @@ By default, the compiled proto files are created in `<project-dir>/target/<scala
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
+### Additional options to protoc
+All options passed to `protoc` are configured via the `protobuf-protoc-options`. To add options, for example to run a custom plugin, add them to this setting key. For example:
+
+    protocOptions in PB.protobufConfig :+= Seq("--custom-option")
+    
+### Additional target directories
+The source directories where the files are generated, and the globs used to identify the generated files, are configured by `generatedTargets in PB.protobufConfig`.
+In case only Java files are generated, this setting doesn't need to change, since it automatically inherits the value of `javaSource in PB.protobufConfig`, paired with the glob `*.java`.
+In case other types of source files are generated, for example by using a custom plugin (see previous section), the corresponding target directories and source file globs must be configured by adding them to this setting. For example:
+
+    generatedTargets in PB.protobufConfig <++= (sourceDirectory in Compile){ dir =>
+        Seq((dir / "generated" / "scala", "*.scala"))
+    }
+    
+This plugin uses the `generatedTargets` setting to:
+- add the generated source directories to `cleanFiles` and `managedSourceDirectories`
+- collect the generated files after running `protoc` and return them to SBT for the compilation phase
+
 ## Scope
 All settings and tasks are in the `protobuf` scope. If you want to execute the `protobuf-generate` task directly, just run `protobuf:protobuf-generate`.
 
@@ -107,6 +125,20 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>protobuf-external-include-path</td>
     <td></td>
     <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:protobuf-include-path</code> for <code>protoc</code></td>
+</tr>
+<tr>
+    <td>protocOptions</td>
+    <td>protobuf-protoc-options</td>
+    <td></td>
+    <td><code>--java_out=</code>[java generated source directory from <code>generatedTargets</code>]</td>
+    <td>the list of options passed to the <code>protoc</code> binary</td>
+</tr>
+<tr>
+    <td>generatedTargets</td>
+    <td>protobuf-generated-targets</td>
+    <td></td>
+    <td><code>(file(</code>java source directory based on <code>javaSource in PB.protobufConfig</code>), <code>"*.java")</code></td>
+    <td>the list of target directories and source file globs for the generated files</td>
 </tr>
 </table>
 
