@@ -4,7 +4,7 @@ organization := "com.github.gseitz"
 
 name := "sbt-protobuf"
 
-version := "0.3.1"
+version := "0.3.2"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
@@ -18,3 +18,7 @@ publishTo <<= (version) { version: String =>
 }
 
 publishMavenStyle := false
+
+crossBuildingSettings
+
+CrossBuilding.crossSbtVersions := Seq("0.11.3", "0.12", "0.13")

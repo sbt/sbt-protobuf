@@ -1,0 +1,1 @@
+* Add new settings `protocOptions` and `generatedTargets` ([#19](https://github.com/sbt/sbt-protobuf/issues/19))
