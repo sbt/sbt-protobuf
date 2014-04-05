@@ -4,3 +4,4 @@ project/boot
 project/target
 target
 .history
+.ensime*
