@@ -16,3 +16,8 @@ bintrayPackage := "sbt-protobuf"
 
 bintrayReleaseOnPublish := false
 
+ScriptedPlugin.scriptedSettings
+
+scriptedBufferLog := false
+
+scriptedLaunchOpts <+= version( x => s"-Dplugin.version=${x}" )
