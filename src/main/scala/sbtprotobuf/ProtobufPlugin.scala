@@ -72,25 +72,32 @@ object ProtobufPlugin extends Plugin {
 
   private def compile(protocCommand: String, srcDir: File, includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
     val schemas = (srcDir ** "*.proto").get
+
     val generatedTargetDirs = generatedTargets.map(_._1)
-
-    generatedTargetDirs.foreach(_.mkdirs())
-
-    log.info("Compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
-    log.debug("protoc options:")
-    protocOptions.map("\t"+_).foreach(log.debug(_))
-    schemas.foreach(schema => log.info("Compiling schema %s" format schema))
-
-    val exitCode = executeProtoc(protocCommand, srcDir, includePaths, protocOptions, log)
-    if (exitCode != 0)
-      sys.error("protoc returned exit code: %d" format exitCode)
-
-    log.info("Compiling protobuf")
-    generatedTargetDirs.foreach{ dir =>
-      log.info("Protoc target directory: %s".format(dir.absolutePath))
+    generatedTargetDirs.foreach{ targetDir =>
+      IO.delete(targetDir)
+      targetDir.mkdirs()
     }
 
-    (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
+    if(!schemas.isEmpty){
+      log.info("Compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
+      log.debug("protoc options:")
+      protocOptions.map("\t"+_).foreach(log.debug(_))
+      schemas.foreach(schema => log.info("Compiling schema %s" format schema))
+
+      val exitCode = executeProtoc(protocCommand, srcDir, includePaths, protocOptions, log)
+      if (exitCode != 0)
+        sys.error("protoc returned exit code: %d" format exitCode)
+
+      log.info("Compiling protobuf")
+      generatedTargetDirs.foreach{ dir =>
+        log.info("Protoc target directory: %s".format(dir.absolutePath))
+      }
+
+      (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
+    } else {
+      Set[File]()
+    }
   }
 
   private def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {

@@ -22,3 +22,10 @@ publishMavenStyle := false
 crossBuildingSettings
 
 CrossBuilding.crossSbtVersions := Seq("0.11.3", "0.12", "0.13")
+
+ScriptedPlugin.scriptedSettings
+
+//Remember to comment this out
+scriptedBufferLog := false
+
+scriptedLaunchOpts <+= version( x => s"-Dplugin.version=${x}" )
