@@ -1,3 +1,0 @@
-> protobuf:protobuf-generate
-$ delete src/main/protobuf/test.proto
-> protobuf:protobuf-generate
