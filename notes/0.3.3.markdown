@@ -1,2 +1,2 @@
 * `externalIncludePath` has been added to `cleanFiles` to explicitly remove the 3rd party proto files. Builds that don't change this setting are not affected.
-* External proto files can now be compiled. See the *Compiling external proto files* in the README for more information. 
+* External proto files can now be compiled. See the *Compiling external proto files* section in the README for more information. 
