@@ -6,10 +6,10 @@ A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Ja
 ### Adding the plugin dependency
 In your project, create a file for plugin library dependencies `project/build.sbt` and add the following lines:
 
-    libraryDependencies += "com.google.protobuf" % "protobuf-java" % "2.5.0"
+    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.3")
 
-    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.2")
-
+The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
+The version for `protobuf-java` can be controlled by the setting `version in protobufConfig` (set to `2.5.0` by default).
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
@@ -43,11 +43,19 @@ Assuming an artifact contains both `*.proto` files as well as the binaries of th
 
     libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
 
-Line #1 tells `sbt-protobuf` that the specified artifact contains *.proto files which it needs to extract and add to the `includePath` for `protoc`.
+Line #1 tells `sbt-protobuf` that the specified artifact contains *.proto files which it needs to extract and add to the `--proto_path` for `protoc`.
+Internally the setting `externalIncludePath` is used to track 3rd party proto files.
 
-Line #2 adds the artifact to the regular compile:libraryDependencies.
+Line #2 adds the artifact to the regular compile classpath.
 
-The `*.proto` files of dependencies are extracted and added to the `includePath` parameter for `protoc`, but are not compiled.
+The `*.proto` files of dependencies are extracted and added to the `--proto_path` parameter for `protoc`, but are not compiled.
+
+### Compiling external proto files
+Sometimes it's desirable to compile external proto files (eg. because the library is compiled with an older version of `protoc`).
+This can be achieved by adding the following setting:
+ 
+    sourceDirectories in PB.protobufConfig <+= (externalIncludePath in PB.protobufConfig).identity
+    
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
@@ -92,7 +100,15 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>sourceDirectory</td>
     <td>source-directory</td>
     <td>x</td>
-    <td><code>"src/main/protobuf"</code></td><td>Path containing *.proto files.</td>
+    <td><code>"src/main/protobuf"</code></td>
+    <td>Path containing *.proto files.</td>
+</tr>
+<tr>
+    <td>sourceDirectories</td>
+    <td>source-directories</td>
+    <td>x</td>
+    <td><code>sourceDirectory</code></td>
+    <td>This setting is used to collect all directories containing *.proto files to compile<td>
 </tr>
 <tr>
     <td>javaSource</td>
