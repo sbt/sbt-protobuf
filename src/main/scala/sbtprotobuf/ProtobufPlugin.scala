@@ -49,6 +49,7 @@ object ProtobufPlugin extends Plugin {
   )) ++ Seq[Setting[_]](
     sourceGenerators in Compile <+= generate in protobufConfig,
     cleanFiles <++= (generatedTargets in protobufConfig){_.map{_._1}},
+    cleanFiles <+= (externalIncludePath in protobufConfig),
     managedSourceDirectories in Compile <++= (generatedTargets in protobufConfig){_.map{_._1}},
     libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
     ivyConfigurations += protobufConfig
