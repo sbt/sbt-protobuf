@@ -42,9 +42,9 @@ object ProtobufPlugin extends Plugin {
     unpackDependencies <<= unpackDependenciesTask,
 
     includePaths <<= (sourceDirectory in protobufConfig) map (identity(_) :: Nil),
-    includePaths <+= unpackDependencies map { _.dir },
+    includePaths <+= externalIncludePath map (identity(_)),
 
-    generate <<= sourceGeneratorTask
+    generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
 
   )) ++ Seq[Setting[_]](
     sourceGenerators in Compile <+= generate in protobufConfig,
