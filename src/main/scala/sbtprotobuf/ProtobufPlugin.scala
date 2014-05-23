@@ -98,7 +98,7 @@ object ProtobufPlugin extends Plugin {
     IO.createDirectory(extractTarget)
     deps.flatMap { dep =>
       val seq = IO.unzip(dep, extractTarget, "*.proto").toSeq
-      if (!seq.isEmpty) log.debug("Extracted " + seq.mkString(","))
+      if (!seq.isEmpty) log.debug("Extracted " + seq.mkString("\n * ", "\n * ", ""))
       seq
     }
   }
