@@ -18,7 +18,7 @@ To actually "activate" the plugin, its settings need to be included in the build
 
     import sbtprotobuf.{ProtobufPlugin=>PB}
 
-    seq(PB.protobufSettings: _*)
+    Seq(PB.protobufSettings: _*)
 
 ##### build.scala
     import sbt._
