@@ -4,7 +4,7 @@ A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Ja
 ## Usage
 
 ### Adding the plugin dependency
-In your project, create a file for plugin library dependencies `project/build.sbt` and add the following lines:
+In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
 
     addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.3")
 
