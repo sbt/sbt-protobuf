@@ -17,44 +17,48 @@ object ProtobufPlugin extends Plugin {
   val unpackDependencies = TaskKey[UnpackedDependencies]("protobuf-unpack-dependencies", "Unpack dependencies.")
   val protocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
 
-  lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
-    sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
-    sourceDirectories <<= sourceDirectory apply (_ :: Nil),
-    javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
-    externalIncludePath <<= target(_ / "protobuf_external"),
-    protoc := "protoc",
-    version := "2.5.0",
+  def protobufSettingsIn(conf: Configuration): Seq[Setting[_]] = inConfig(conf)(
+    inConfig(protobufConfig)(Seq[Setting[_]](
+      sourceDirectory <<= (sourceDirectory in conf) { _ / "protobuf" },
+      sourceDirectories <<= sourceDirectory apply (_ :: Nil),
+      javaSource <<= (sourceManaged in conf) { _ / "compiled_protobuf" },
+      externalIncludePath <<= target(_ / "protobuf_external"),
+      protoc := "protoc",
+      version := "2.5.0",
 
-    generatedTargets := Nil,
-    generatedTargets <+= (javaSource in protobufConfig)((_, "*.java")), // add javaSource to the list of patterns
+      generatedTargets := Nil,
+      generatedTargets <+= (javaSource in protobufConfig)((_, "*.java")), // add javaSource to the list of patterns
 
-    protocOptions := Nil,
-    protocOptions <++= (generatedTargets in protobufConfig){ generatedTargets => // if a java target is provided, add java generation option
-      generatedTargets.find(_._2.endsWith(".java")) match {
-        case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.absolutePath))
-        case None => Nil
-      }
-    },
+      protocOptions := Nil,
+      protocOptions <++= (generatedTargets in protobufConfig){ generatedTargets => // if a java target is provided, add java generation option
+        generatedTargets.find(_._2.endsWith(".java")) match {
+          case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.absolutePath))
+          case None => Nil
+        }
+      },
 
-    managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
-      Classpaths.managedJars(protobufConfig, ct, report)
-    },
+      managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
+        Classpaths.managedJars(protobufConfig, ct, report)
+      },
 
-    unpackDependencies <<= unpackDependenciesTask,
+      unpackDependencies <<= unpackDependenciesTask,
 
-    includePaths <<= (sourceDirectory in protobufConfig) map (identity(_) :: Nil),
-    includePaths <+= externalIncludePath map (identity(_)),
+      includePaths <<= (sourceDirectory in protobufConfig) map (identity(_) :: Nil),
+      includePaths <+= externalIncludePath map (identity(_)),
 
-    generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
+      generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
 
-  )) ++ Seq[Setting[_]](
-    sourceGenerators in Compile <+= generate in protobufConfig,
-    cleanFiles <++= (generatedTargets in protobufConfig){_.map{_._1}},
-    cleanFiles <+= (externalIncludePath in protobufConfig),
-    managedSourceDirectories in Compile <++= (generatedTargets in protobufConfig){_.map{_._1}},
-    libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
-    ivyConfigurations += protobufConfig
+    )) ++ Seq[Setting[_]](
+      sourceGenerators in conf <+= generate in protobufConfig,
+      cleanFiles <++= (generatedTargets in protobufConfig){_.map{_._1}},
+      cleanFiles <+= (externalIncludePath in protobufConfig),
+      managedSourceDirectories in conf <++= (generatedTargets in protobufConfig){_.map{_._1}},
+      libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
+      ivyConfigurations += protobufConfig
+    )
   )
+
+  lazy val protobufSettings: Seq[Setting[_]] = protobufSettingsIn(Compile) ++ protobufSettingsIn(Test)
 
   case class UnpackedDependencies(dir: File, files: Seq[File])
 
