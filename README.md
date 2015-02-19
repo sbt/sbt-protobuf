@@ -88,8 +88,19 @@ This plugin uses the `generatedTargets` setting to:
 - collect the generated files after running `protoc` and return them to SBT for the compilation phase
 
 ## Scope
-All settings and tasks are in the `protobuf` scope. If you want to execute the `protobuf-generate` task directly, just run `protobuf:protobuf-generate`.
+All settings and tasks are in the `protobuf` task. If you want to execute the `protobuf-generate` task directly, just run `protobufTask::protobufGenerate`.
 
+Now plugin support `Compile` and `Test` configurations. You can add only Test/Compile settings like this:
+
+    settings = Defaults.defaultSettings ++ PB.protobufSettingsIn(Test) ++ Seq(
+             /* custom settings here */
+    )
+
+To use the .proto files from `Compile` scope in `Test`:
+
+    .settings( //allows sbt-protobuf to use .proto files from compile in test scope
+        includePaths in (Test, protobufTask) <+= (sourceDirectory in (Compile, protobufTask)) map identity
+    )
 
 
 ## Settings
