@@ -89,6 +89,8 @@ object ProtobufPlugin extends Plugin {
     log.info("Compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
     log.debug("protoc options:")
     protocOptions.map("\t"+_).foreach(log.debug(_))
+    log.debug("include paths:")
+    includePaths.map("\t"+_).foreach(log.debug(_))
     schemas.foreach(schema => log.info("Compiling schema %s" format schema))
 
     val exitCode = executeProtoc(protocCommand, schemas, includePaths, protocOptions, log)
