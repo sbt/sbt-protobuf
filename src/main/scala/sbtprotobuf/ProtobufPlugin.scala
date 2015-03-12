@@ -11,6 +11,7 @@ object ProtobufPlugin extends Plugin {
 
   val includePaths = TaskKey[Seq[File]]("protobuf-include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
+  val runProtoc = TaskKey[Seq[String] => Int]("protobuf-run-protoc", "A function that executes the protobuf compiler with the given arguments, returning the exit code of the compilation run.")
   val externalIncludePath = SettingKey[File]("protobuf-external-include-path", "The path to which protobuf:library-dependencies are extracted and which is used as protobuf:include-path for protoc")
   val generatedTargets = SettingKey[Seq[(File,String)]]("protobuf-generated-targets", "Targets for protoc: target directory and glob for generated source files")
   val generate = TaskKey[Seq[File]]("protobuf-generate", "Compile the protobuf sources.")
@@ -23,6 +24,7 @@ object ProtobufPlugin extends Plugin {
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
+    runProtoc <<= (protoc, streams) map ((cmd, s) => args => Process(cmd, args) ! s.log),
     version := "2.5.0",
 
     generatedTargets := Nil,
@@ -58,20 +60,15 @@ object ProtobufPlugin extends Plugin {
 
   case class UnpackedDependencies(dir: File, files: Seq[File])
 
-  private def executeProtoc(protocCommand: String, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) =
+  private def executeProtoc(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) : Int =
     try {
       val incPath = includePaths.map("-I" + _.absolutePath)
-      val proc = Process(
-        protocCommand,
-        incPath ++ protocOptions ++ schemas.map(_.absolutePath)
-      )
-      proc ! log
+      protocCommand(incPath ++ protocOptions ++ schemas.map(_.absolutePath))
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
 
-
-  private def compile(protocCommand: String, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
+  private def compile(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
     val generatedTargetDirs = generatedTargets.map(_._1)
 
     generatedTargetDirs.foreach(_.mkdirs())
@@ -103,7 +100,7 @@ object ProtobufPlugin extends Plugin {
   }
 
   private def sourceGeneratorTask =
-    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, cacheDirectory, protoc) map {
+    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, cacheDirectory, runProtoc) map {
     (out, srcDirs, includePaths, protocOpts, otherTargets, cache, protocCommand) =>
       val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** "*.proto").get.map(_.getAbsoluteFile))
       val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>

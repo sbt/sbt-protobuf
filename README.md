@@ -6,7 +6,7 @@ A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Ja
 ### Adding the plugin dependency
 In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
 
-    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.3.3")
+    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.4.0")
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
 The version for `protobuf-java` can be controlled by the setting `version in protobufConfig` (set to `2.5.0` by default).
@@ -164,6 +164,13 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr><th>name</th><th>shell-name</th><th>description</th></tr>
 <tr><td>generate</td><td>protobuf-generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
 <tr><td>unpackDependencies</td><td>protobuf-unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>protobuf-external-inlude-patch</code></td></tr>
+<tr>
+    <td>runProtoc</td>
+    <td>protobuf-run-protoc</td>
+    <td>A function that executes the protobuf compiler with the given arguments,
+    returning the exit code. The default implementation runs the executable referenced by the `protoc` setting.</td>
+</tr>
+
 </table>
 
 ## Credits

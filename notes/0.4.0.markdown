@@ -1,0 +1,2 @@
+* Added task `runProtoc`, representing a function that executes the protobuf compiler.
+This opens up the possibility to invoke *protoc* via means other than just an executable on the filesystem (eg. via [os72/protoc-jar](https://github.com/os72/protoc-jar)).
