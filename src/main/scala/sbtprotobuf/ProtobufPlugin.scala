@@ -50,6 +50,7 @@ object ProtobufPlugin extends Plugin {
     generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
 
   )) ++ Seq[Setting[_]](
+    watchSources ++= ((sourceDirectory in protobufConfig).value ** "*.proto").get,
     sourceGenerators in Compile <+= generate in protobufConfig,
     cleanFiles <++= (generatedTargets in protobufConfig){_.map{_._1}},
     cleanFiles <+= (externalIncludePath in protobufConfig),
