@@ -33,7 +33,7 @@ object ProtobufPlugin extends Plugin {
     protocOptions := Nil,
     protocOptions <++= (generatedTargets in protobufConfig){ generatedTargets => // if a java target is provided, add java generation option
       generatedTargets.find(_._2.endsWith(".java")) match {
-        case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.absolutePath))
+        case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.getCanonicalPath))
         case None => Nil
       }
     },
@@ -62,8 +62,8 @@ object ProtobufPlugin extends Plugin {
 
   private def executeProtoc(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) : Int =
     try {
-      val incPath = includePaths.map("-I" + _.absolutePath)
-      protocCommand(incPath ++ protocOptions ++ schemas.map(_.absolutePath))
+      val incPath = includePaths.map("-I" + _.getCanonicalPath)
+      protocCommand(incPath ++ protocOptions ++ schemas.map(_.getCanonicalPath))
     } catch { case e: Exception =>
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
@@ -84,7 +84,7 @@ object ProtobufPlugin extends Plugin {
 
     log.info("Compiling protobuf")
     generatedTargetDirs.foreach{ dir =>
-      log.info("Protoc target directory: %s".format(dir.absolutePath))
+      log.info("Protoc target directory: %s".format(dir.getCanonicalPath))
     }
 
     (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
