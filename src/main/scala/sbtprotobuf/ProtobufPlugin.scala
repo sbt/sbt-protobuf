@@ -21,6 +21,7 @@ object ProtobufPlugin extends Plugin {
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
     sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
     sourceDirectories <<= sourceDirectory apply (_ :: Nil),
+    includeFilter := "*.proto",
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
@@ -100,9 +101,9 @@ object ProtobufPlugin extends Plugin {
   }
 
   private def sourceGeneratorTask =
-    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, cacheDirectory, runProtoc) map {
-    (out, srcDirs, includePaths, protocOpts, otherTargets, cache, protocCommand) =>
-      val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** "*.proto").get.map(_.getAbsoluteFile))
+    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, cacheDirectory, runProtoc) map {
+    (out, srcDirs, includePaths, includeFilter, excludeFilter, protocOpts, otherTargets, cache, protocCommand) =>
+      val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** (includeFilter -- excludeFilter)).get.map(_.getAbsoluteFile))
       val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
         compile(protocCommand, schemas, includePaths, protocOpts, otherTargets, out.log)
       }
