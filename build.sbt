@@ -2,7 +2,7 @@ organization := "com.github.gseitz"
 
 name := "sbt-protobuf"
 
-version := "0.4-SNAPSHOT"
+version := "0.5.0"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
