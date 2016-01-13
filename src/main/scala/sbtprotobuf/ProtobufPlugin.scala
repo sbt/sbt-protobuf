@@ -102,10 +102,10 @@ object ProtobufPlugin extends Plugin {
   }
 
   private def sourceGeneratorTask =
-    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, cacheDirectory, runProtoc) map {
-    (out, srcDirs, includePaths, includeFilter, excludeFilter, protocOpts, otherTargets, cache, protocCommand) =>
+    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, streams, runProtoc) map {
+    (out, srcDirs, includePaths, includeFilter, excludeFilter, protocOpts, otherTargets, streams, protocCommand) =>
       val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** (includeFilter -- excludeFilter)).get.map(_.getAbsoluteFile))
-      val cachedCompile = FileFunction.cached(cache / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
+      val cachedCompile = FileFunction.cached(streams.cacheDirectory / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
         compile(protocCommand, schemas, includePaths, protocOpts, otherTargets, out.log)
       }
       cachedCompile(schemas).toSeq

@@ -1,5 +1,3 @@
-sbtPlugin := true
-
 organization := "com.github.gseitz"
 
 name := "sbt-protobuf"
@@ -8,17 +6,15 @@ version := "0.4-SNAPSHOT"
 
 scalacOptions := Seq("-deprecation", "-unchecked")
 
-publishTo <<= (version) { version: String =>
-   val scalasbt = "http://scalasbt.artifactoryonline.com/scalasbt/"
-   val (name, url) = if (version.contains("-SNAPSHOT"))
-                       ("sbt-plugin-snapshots-publish", scalasbt+"sbt-plugin-snapshots")
-                     else
-                       ("sbt-plugin-releases-publish", scalasbt+"sbt-plugin-releases")
-   Some(Resolver.url(name, new URL(url))(Resolver.ivyStylePatterns))
-}
+sbtPlugin := true
 
 publishMavenStyle := false
 
-crossBuildingSettings
+bintrayOrganization := Some("sbt")
 
-CrossBuilding.crossSbtVersions := Seq("0.11.3", "0.12", "0.13")
+bintrayRepository := "sbt-plugin-releases"
+
+bintrayPackage := "sbt-protobuf"
+
+bintrayReleaseOnPublish := false
+
