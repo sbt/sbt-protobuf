@@ -127,21 +127,21 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr><th>name</th><th>name in shell</th><th>built-in key</th><th>default</th><th>description</th></tr>
 <tr>
     <td>sourceDirectory</td>
-    <td>source-directory</td>
+    <td>sourceDirectory</td>
     <td>x</td>
     <td><code>"src/main/protobuf"</code></td>
     <td>Path containing *.proto files.</td>
 </tr>
 <tr>
     <td>sourceDirectories</td>
-    <td>source-directories</td>
+    <td>sourceDirectories</td>
     <td>x</td>
     <td><code>sourceDirectory</code></td>
     <td>This setting is used to collect all directories containing *.proto files to compile<td>
 </tr>
 <tr>
     <td>javaSource</td>
-    <td>java-source</td>
+    <td>javaSource</td>
     <td>x</td>
     <td><code>"$sourceManaged/compiled_protobuf"</code></td>
     <td>Path for the generated *.java files.</td>
@@ -155,32 +155,32 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 </tr>
 <tr>
     <td>protoc</td>
-    <td>protobuf-protoc</td>
+    <td>protobufProtoc</td>
     <td></td>
     <td><code>"protoc"</code></td><td>The path to the 'protoc' executable.</td>
 </tr>
 <tr>
     <td>includePaths</td>
-    <td>protobuf-include-paths</td>
+    <td>protobufIncludePaths</td>
     <td></td>
     <td><code>Seq($generated-source, protobuf-external-include-path)</code></td><td>The path for additional *.proto files.</td>
 </tr>
 <tr>
     <td>externalIncludePath</td>
-    <td>protobuf-external-include-path</td>
+    <td>protobufExternalIncludePath</td>
     <td></td>
     <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:protobuf-include-path</code> for <code>protoc</code></td>
 </tr>
 <tr>
     <td>protocOptions</td>
-    <td>protobuf-protoc-options</td>
+    <td>protobufProtocOptions</td>
     <td></td>
     <td><code>--java_out=</code>[java generated source directory from <code>generatedTargets</code>]</td>
     <td>the list of options passed to the <code>protoc</code> binary</td>
 </tr>
 <tr>
     <td>generatedTargets</td>
-    <td>protobuf-generated-targets</td>
+    <td>protobufGeneratedTargets</td>
     <td></td>
     <td><code>(file(</code>java source directory based on <code>javaSource in PB.protobufConfig</code>), <code>"*.java")</code></td>
     <td>the list of target directories and source file globs for the generated files</td>
@@ -191,11 +191,11 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 
 <table>
 <tr><th>name</th><th>shell-name</th><th>description</th></tr>
-<tr><td>generate</td><td>protobuf-generate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
-<tr><td>unpackDependencies</td><td>protobuf-unpack-dependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>protobuf-external-inlude-patch</code></td></tr>
+<tr><td>generate</td><td>protobufGenerate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
+<tr><td>unpackDependencies</td><td>protobufUnpackDependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>protobuf-external-inlude-patch</code></td></tr>
 <tr>
     <td>runProtoc</td>
-    <td>protobuf-run-protoc</td>
+    <td>protobufRunProtoc</td>
     <td>A function that executes the protobuf compiler with the given arguments,
     returning the exit code. The default implementation runs the executable referenced by the `protoc` setting.</td>
 </tr>
