@@ -35,12 +35,13 @@ import sbt._
 import sbtprotobuf.{ProtobufPlugin=>PB}
 
 object MyBuild extends Build {
-  lazy val myproject = MyProject(
+  lazy val myproject = Project(
     id = "myproject",
-    base = file("."),
-    settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq(
-        /* custom settings here */
-    )
+    base = file(".")
+  ).settings(
+    PB.protobufSettings : _*
+  ).settings(
+    /* custom settings here */
   )
 }
 ```
@@ -97,7 +98,7 @@ as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 All options passed to `protoc` are configured via the `protobuf-protoc-options`. To add options, for example to run a custom plugin, add them to this setting key. For example:
 
 ```scala
-protocOptions in PB.protobufConfig :+= Seq("--custom-option")
+protocOptions in PB.protobufConfig ++= Seq("--custom-option")
 ```
 
 ### Additional target directories
