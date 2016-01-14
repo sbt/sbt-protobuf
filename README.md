@@ -8,7 +8,7 @@ A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Ja
 ### Adding the plugin dependency
 In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
 
-    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.4.0")
+    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.5.0")
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
 The version for `protobuf-java` can be controlled by the setting `version in protobufConfig` (set to `2.5.0` by default).
