@@ -1,0 +1,4 @@
+- [Add `includeFilter` and `excludeFilter` as a posibility to decide what .proto's to generate](https://github.com/sbt/sbt-protobuf/pull/29)
+- [add watchSources setting ](https://github.com/sbt/sbt-protobuf/pull/33)
+- [use CanonicalPath instead of AbsolutePath](https://github.com/sbt/sbt-protobuf/pull/35)
+- [Drop sbt 0.12.x support](https://github.com/sbt/sbt-protobuf/commit/2a472b21bc8f48b20a89187bb0373ae2178d4989)
