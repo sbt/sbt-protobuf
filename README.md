@@ -9,7 +9,9 @@ A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Ja
 ### Adding the plugin dependency
 In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
 
-    addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.5.0")
+```scala
+addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.5.0")
+```
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
 The version for `protobuf-java` can be controlled by the setting `version in protobufConfig` (set to `2.5.0` by default).
@@ -19,32 +21,39 @@ To actually "activate" the plugin, its settings need to be included in the build
 
 ##### build.sbt
 
-    import sbtprotobuf.{ProtobufPlugin=>PB}
+```scala
+import sbtprotobuf.{ProtobufPlugin=>PB}
 
-    Seq(PB.protobufSettings: _*)
+Seq(PB.protobufSettings: _*)
+```
 
 ##### build.scala
-    import sbt._
 
-    import sbtprotobuf.{ProtobufPlugin=>PB}
+```scala
+import sbt._
 
-    object MyBuild extends Build {
-      lazy val myproject = MyProject(
-        id = "myproject",
-        base = file("."),
-        settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq(
-            /* custom settings here */
-        )
-      )
-    }
+import sbtprotobuf.{ProtobufPlugin=>PB}
+
+object MyBuild extends Build {
+  lazy val myproject = MyProject(
+    id = "myproject",
+    base = file("."),
+    settings = Defaults.defaultSettings ++ PB.protobufSettings ++ Seq(
+        /* custom settings here */
+    )
+  )
+}
+```
 
 
 ### Declaring dependencies
 Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.java` files, you can specify the dependency like so:
 
-    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % PB.protobufConfig.name // #1
+```scala
+libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % PB.protobufConfig.name // #1
 
-    libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
+libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
+```
 
 Line #1 tells `sbt-protobuf` that the specified artifact contains *.proto files which it needs to extract and add to the `--proto_path` for `protoc`.
 Internally the setting `externalIncludePath` is used to track 3rd party proto files.
@@ -56,19 +65,24 @@ The `*.proto` files of dependencies are extracted and added to the `--proto_path
 ### Compiling external proto files
 Sometimes it's desirable to compile external proto files (eg. because the library is compiled with an older version of `protoc`).
 This can be achieved by adding the following setting:
- 
-    sourceDirectories in PB.protobufConfig <+= (externalIncludePath in PB.protobufConfig).identity
-    
+
+```scala
+sourceDirectories in PB.protobufConfig <+= (externalIncludePath in PB.protobufConfig).identity
+```
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
-    unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig).identity,
+```scala
+unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig).identity,
+```
 
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
-    javaSource in PB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
+```scala
+javaSource in PB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
+```
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
@@ -82,17 +96,21 @@ as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 ### Additional options to protoc
 All options passed to `protoc` are configured via the `protobuf-protoc-options`. To add options, for example to run a custom plugin, add them to this setting key. For example:
 
-    protocOptions in PB.protobufConfig :+= Seq("--custom-option")
-    
+```scala
+protocOptions in PB.protobufConfig :+= Seq("--custom-option")
+```
+
 ### Additional target directories
 The source directories where the files are generated, and the globs used to identify the generated files, are configured by `generatedTargets in PB.protobufConfig`.
 In case only Java files are generated, this setting doesn't need to change, since it automatically inherits the value of `javaSource in PB.protobufConfig`, paired with the glob `*.java`.
 In case other types of source files are generated, for example by using a custom plugin (see previous section), the corresponding target directories and source file globs must be configured by adding them to this setting. For example:
 
-    generatedTargets in PB.protobufConfig <++= (sourceDirectory in Compile){ dir =>
-        Seq((dir / "generated" / "scala", "*.scala"))
-    }
-    
+```scala
+generatedTargets in PB.protobufConfig <++= (sourceDirectory in Compile){ dir =>
+  Seq((dir / "generated" / "scala", "*.scala"))
+}
+```
+
 This plugin uses the `generatedTargets` setting to:
 - add the generated source directories to `cleanFiles` and `managedSourceDirectories`
 - collect the generated files after running `protoc` and return them to SBT for the compilation phase
