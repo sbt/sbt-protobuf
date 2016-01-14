@@ -68,14 +68,14 @@ Sometimes it's desirable to compile external proto files (eg. because the librar
 This can be achieved by adding the following setting:
 
 ```scala
-sourceDirectories in PB.protobufConfig <+= (externalIncludePath in PB.protobufConfig).identity
+sourceDirectories in PB.protobufConfig <+= (externalIncludePath in PB.protobufConfig)
 ```
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
 ```scala
-unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig).identity,
+unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig)
 ```
 
 ### Changing the location of the generated java files
