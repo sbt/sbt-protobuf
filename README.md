@@ -1,6 +1,8 @@
 # sbt-protobuf
 A plugin for sbt-0.(12|13).x that transforms *.proto files into gazillion-loc Java source files, and potentially to other languages too.
 
+[![Build Status](https://travis-ci.org/sbt/sbt-protobuf.svg?branch=master)](https://travis-ci.org/sbt/sbt-protobuf)
+
 ## Usage
 
 ### Adding the plugin dependency
