@@ -2,7 +2,7 @@ organization := "com.github.gseitz"
 
 name := "sbt-protobuf"
 
-scalacOptions := Seq("-deprecation", "-unchecked")
+scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
 
 sbtPlugin := true
 
