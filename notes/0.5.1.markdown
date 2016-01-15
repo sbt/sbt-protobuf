@@ -1,0 +1,4 @@
+- [fix issues with deletion](https://github.com/sbt/sbt-protobuf/pull/20)
+- [change default "version in protobufConfig". s/2.5.0/2.6.1](https://github.com/sbt/sbt-protobuf/commit/8c7103dee530eaa4f1783)
+- improve README examples
+- add some scripted tests. enable travis-ci
