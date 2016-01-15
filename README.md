@@ -137,7 +137,7 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>sourceDirectories</td>
     <td>x</td>
     <td><code>sourceDirectory</code></td>
-    <td>This setting is used to collect all directories containing *.proto files to compile<td>
+    <td>This setting is used to collect all directories containing *.proto files to compile</td>
 </tr>
 <tr>
     <td>javaSource</td>
