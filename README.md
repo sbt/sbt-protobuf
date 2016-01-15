@@ -95,7 +95,7 @@ as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 2,The inner message's name could not be the ```.proto```'s file name.that will cause problem too,you could change the inner message's name or the ```.proto``` file name or add the ```option java_outer_classname = "NewNameNotAsTheFileName";``` to you ```.proto``` file.
 
 ### Additional options to protoc
-All options passed to `protoc` are configured via the `protobuf-protoc-options`. To add options, for example to run a custom plugin, add them to this setting key. For example:
+All options passed to `protoc` are configured via the `protobufProtocOptions`. To add options, for example to run a custom plugin, add them to this setting key. For example:
 
 ```scala
 protocOptions in PB.protobufConfig ++= Seq("--custom-option")
@@ -117,7 +117,7 @@ This plugin uses the `generatedTargets` setting to:
 - collect the generated files after running `protoc` and return them to SBT for the compilation phase
 
 ## Scope
-All settings and tasks are in the `protobuf` scope. If you want to execute the `protobuf-generate` task directly, just run `protobuf:protobuf-generate`.
+All settings and tasks are in the `protobuf` scope. If you want to execute the `protobufGenerate` task directly, just run `protobuf:protobufGenerate`.
 
 
 
@@ -163,13 +163,13 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>includePaths</td>
     <td>protobufIncludePaths</td>
     <td></td>
-    <td><code>Seq($generated-source, protobuf-external-include-path)</code></td><td>The path for additional *.proto files.</td>
+    <td><code>Seq($generated-source, protobufExternalIncludePath)</code></td><td>The path for additional *.proto files.</td>
 </tr>
 <tr>
     <td>externalIncludePath</td>
     <td>protobufExternalIncludePath</td>
     <td></td>
-    <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:library-dependencies</code> are extracted and which is used as <code>protobuf:protobuf-include-path</code> for <code>protoc</code></td>
+    <td><code>target/protobuf_external</code></td><td>The path to which <code>protobuf:libraryDependencies</code> are extracted and which is used as <code>protobuf:protobufIncludePath</code> for <code>protoc</code></td>
 </tr>
 <tr>
     <td>protocOptions</td>
@@ -192,7 +192,7 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <table>
 <tr><th>name</th><th>shell-name</th><th>description</th></tr>
 <tr><td>generate</td><td>protobufGenerate</td><td>Performs the hardcore compiling action and is automatically executed as a "source generator" in the <code>Compile</code> scope.</td></tr>
-<tr><td>unpackDependencies</td><td>protobufUnpackDependencies</td><td>Extracts proto files from <code>library-dependencies</code> into <code>protobuf-external-inlude-patch</code></td></tr>
+<tr><td>unpackDependencies</td><td>protobufUnpackDependencies</td><td>Extracts proto files from <code>libraryDependencies</code> into <code>protobufExternalInludePatch</code></td></tr>
 <tr>
     <td>runProtoc</td>
     <td>protobufRunProtoc</td>
