@@ -11,3 +11,5 @@ $ exists target/scala-2.10/classes/test/Test2.class
 > clean
 
 -$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test2.java
+
+> checkJar

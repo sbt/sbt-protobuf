@@ -11,3 +11,11 @@ PB.runProtoc in PB.protobufConfig := { args =>
 }
 
 excludeFilter in PB.protobufConfig := "test1.proto"
+
+unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig)
+
+TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
+  val files = IO.unzip((packageBin in Compile).value, dir, "*.proto")
+  val expect = Set("test1.proto", "test2.proto").map(dir / _)
+  assert(files == expect, s"$files $expect")
+}
