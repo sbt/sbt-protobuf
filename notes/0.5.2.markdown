@@ -1,0 +1,1 @@
+- fix [including breaks my build due to ambiguous compile key](https://github.com/sbt/sbt-protobuf/issues/37)
