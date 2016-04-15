@@ -19,3 +19,6 @@ TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
   val expect = Set("test1.proto", "test2.proto").map(dir / _)
   assert(files == expect, s"$files $expect")
 }
+
+// https://github.com/sbt/sbt-protobuf/issues/37
+mainClass in compile := Some("whatever")

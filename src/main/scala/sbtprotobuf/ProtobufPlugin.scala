@@ -62,7 +62,7 @@ object ProtobufPlugin extends Plugin {
 
   case class UnpackedDependencies(dir: File, files: Seq[File])
 
-  private def executeProtoc(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) : Int =
+  private[this] def executeProtoc(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) : Int =
     try {
       val incPath = includePaths.map("-I" + _.getCanonicalPath)
       protocCommand(incPath ++ protocOptions ++ schemas.map(_.getCanonicalPath))
@@ -70,7 +70,7 @@ object ProtobufPlugin extends Plugin {
       throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
     }
 
-  private def compile(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
+  private[this] def compile(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
     val generatedTargetDirs = generatedTargets.map(_._1)
     generatedTargetDirs.foreach{ targetDir =>
       IO.delete(targetDir)
@@ -98,7 +98,7 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {
+  private[this] def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {
     IO.createDirectory(extractTarget)
     deps.flatMap { dep =>
       val seq = IO.unzip(dep, extractTarget, "*.proto").toSeq
@@ -107,7 +107,7 @@ object ProtobufPlugin extends Plugin {
     }
   }
 
-  private def sourceGeneratorTask =
+  private[this] def sourceGeneratorTask =
     (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, streams, runProtoc) map {
     (out, srcDirs, includePaths, includeFilter, excludeFilter, protocOpts, otherTargets, streams, protocCommand) =>
       val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** (includeFilter -- excludeFilter)).get.map(_.getAbsoluteFile))
@@ -117,7 +117,7 @@ object ProtobufPlugin extends Plugin {
       cachedCompile(schemas).toSeq
   }
 
-  private def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
+  private[this] def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
     (out, deps, extractTarget) =>
       val extractedFiles = unpack(deps.map(_.data), extractTarget, out.log)
       UnpackedDependencies(extractTarget, extractedFiles)
