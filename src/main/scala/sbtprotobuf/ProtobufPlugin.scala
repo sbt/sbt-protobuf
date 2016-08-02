@@ -26,7 +26,7 @@ object ProtobufPlugin extends Plugin {
     externalIncludePath <<= target(_ / "protobuf_external"),
     protoc := "protoc",
     runProtoc <<= (protoc, streams) map ((cmd, s) => args => Process(cmd, args) ! s.log),
-    version := "2.6.1",
+    version := "3.0.0",
 
     generatedTargets := Nil,
     generatedTargets <+= (javaSource in protobufConfig)((_, "*.java")), // add javaSource to the list of patterns
