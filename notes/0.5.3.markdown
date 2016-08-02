@@ -1,0 +1,1 @@
+- [change default protobuf version. use 3.0.0](https://github.com/sbt/sbt-protobuf/commit/64bd6ffe4991dede579e321cc239082171813110)
