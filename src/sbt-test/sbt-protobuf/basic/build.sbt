@@ -12,7 +12,7 @@ PB.runProtoc in PB.protobufConfig := { args =>
 
 excludeFilter in PB.protobufConfig := "test1.proto"
 
-unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig)
+unmanagedResourceDirectories in Compile += (sourceDirectory in PB.protobufConfig).value
 
 TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
   val files = IO.unzip((packageBin in Compile).value, dir, "*.proto")

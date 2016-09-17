@@ -68,21 +68,21 @@ Sometimes it's desirable to compile external proto files (eg. because the librar
 This can be achieved by adding the following setting:
 
 ```scala
-sourceDirectories in PB.protobufConfig <+= (externalIncludePath in PB.protobufConfig)
+sourceDirectories in PB.protobufConfig += (externalIncludePath in PB.protobufConfig).value
 ```
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
 ```scala
-unmanagedResourceDirectories in Compile <+= (sourceDirectory in PB.protobufConfig)
+unmanagedResourceDirectories in Compile += (sourceDirectory in PB.protobufConfig).value
 ```
 
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
 ```scala
-javaSource in PB.protobufConfig <<= (sourceDirectory in Compile)(_ / "generated")
+javaSource in PB.protobufConfig := ((sourceDirectory in Compile).value / "generated")
 ```
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
@@ -107,8 +107,8 @@ In case only Java files are generated, this setting doesn't need to change, sinc
 In case other types of source files are generated, for example by using a custom plugin (see previous section), the corresponding target directories and source file globs must be configured by adding them to this setting. For example:
 
 ```scala
-generatedTargets in PB.protobufConfig <++= (sourceDirectory in Compile){ dir =>
-  Seq((dir / "generated" / "scala", "*.scala"))
+generatedTargets in PB.protobufConfig ++= {
+  Seq((sourceDirectory in Compile).value / "generated" / "scala", "*.scala")
 }
 ```
 

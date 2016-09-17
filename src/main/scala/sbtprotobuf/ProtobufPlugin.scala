@@ -19,44 +19,44 @@ object ProtobufPlugin extends Plugin {
   val protocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
-    sourceDirectory <<= (sourceDirectory in Compile) { _ / "protobuf" },
-    sourceDirectories <<= sourceDirectory apply (_ :: Nil),
+    sourceDirectory := { (sourceDirectory in Compile).value / "protobuf" },
+    sourceDirectories := (sourceDirectory.value :: Nil),
     includeFilter := "*.proto",
-    javaSource <<= (sourceManaged in Compile) { _ / "compiled_protobuf" },
-    externalIncludePath <<= target(_ / "protobuf_external"),
+    javaSource := {(sourceManaged in Compile).value / "compiled_protobuf" },
+    externalIncludePath := (target.value / "protobuf_external"),
     protoc := "protoc",
-    runProtoc <<= (protoc, streams) map ((cmd, s) => args => Process(cmd, args) ! s.log),
+    runProtoc := (args => Process(protoc.value, args) ! streams.value.log),
     version := "3.0.0",
 
     generatedTargets := Nil,
-    generatedTargets <+= (javaSource in protobufConfig)((_, "*.java")), // add javaSource to the list of patterns
+    generatedTargets += Tuple2((javaSource in protobufConfig).value, "*.java"), // add javaSource to the list of patterns
 
     protocOptions := Nil,
-    protocOptions <++= (generatedTargets in protobufConfig){ generatedTargets => // if a java target is provided, add java generation option
-      generatedTargets.find(_._2.endsWith(".java")) match {
+    protocOptions ++= { // if a java target is provided, add java generation option
+      (generatedTargets in protobufConfig).value.find(_._2.endsWith(".java")) match {
         case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.getCanonicalPath))
         case None => Nil
       }
     },
 
-    managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
-      Classpaths.managedJars(protobufConfig, ct, report)
+    managedClasspath := {
+      Classpaths.managedJars(protobufConfig, classpathTypes.value, update.value)
     },
 
-    unpackDependencies <<= unpackDependenciesTask,
+    unpackDependencies := unpackDependenciesTask.value,
 
-    includePaths <<= (sourceDirectory in protobufConfig) map (identity(_) :: Nil),
-    includePaths <+= externalIncludePath map (identity(_)),
+    includePaths := ((sourceDirectory in protobufConfig).value :: Nil),
+    includePaths += externalIncludePath.value,
 
-    generate <<= sourceGeneratorTask.dependsOn(unpackDependencies)
+    generate := sourceGeneratorTask.dependsOn(unpackDependencies).value
 
   )) ++ Seq[Setting[_]](
     watchSources ++= ((sourceDirectory in protobufConfig).value ** "*.proto").get,
-    sourceGenerators in Compile <+= generate in protobufConfig,
-    cleanFiles <++= (generatedTargets in protobufConfig){_.map{_._1}},
-    cleanFiles <+= (externalIncludePath in protobufConfig),
-    managedSourceDirectories in Compile <++= (generatedTargets in protobufConfig){_.map{_._1}},
-    libraryDependencies <+= (version in protobufConfig)("com.google.protobuf" % "protobuf-java" % _),
+    sourceGenerators in Compile += (generate in protobufConfig).taskValue,
+    cleanFiles ++= (generatedTargets in protobufConfig).value.map{_._1},
+    cleanFiles += (externalIncludePath in protobufConfig).value,
+    managedSourceDirectories in Compile ++= (generatedTargets in protobufConfig).value.map{_._1},
+    libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value),
     ivyConfigurations += protobufConfig
   )
 
