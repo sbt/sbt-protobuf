@@ -67,7 +67,7 @@ object ProtobufPlugin extends Plugin {
       val incPath = includePaths.map("-I" + _.getCanonicalPath)
       protocCommand(incPath ++ protocOptions ++ schemas.map(_.getCanonicalPath))
     } catch { case e: Exception =>
-      throw new RuntimeException("error occured while compiling protobuf files: %s" format(e.getMessage), e)
+      throw new RuntimeException("error occurred while compiling protobuf files: %s" format(e.getMessage), e)
     }
 
   private[this] def compile(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {

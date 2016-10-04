@@ -89,7 +89,7 @@ javaSource in PB.protobufConfig := ((sourceDirectory in Compile).value / "genera
 
 ###Note
 
-1,If you occured compile error,as ```[...] is already defined as object [...]``` you could change the compile order
+1,If you occurred compile error,as ```[...] is already defined as object [...]``` you could change the compile order
 as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 
 2,The inner message's name could not be the ```.proto```'s file name.that will cause problem too,you could change the inner message's name or the ```.proto``` file name or add the ```option java_outer_classname = "NewNameNotAsTheFileName";``` to you ```.proto``` file.
