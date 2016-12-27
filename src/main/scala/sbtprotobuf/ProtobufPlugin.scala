@@ -108,14 +108,25 @@ object ProtobufPlugin extends Plugin {
   }
 
   private[this] def sourceGeneratorTask =
-    (streams, sourceDirectories in protobufConfig, includePaths in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig, protocOptions in protobufConfig, generatedTargets in protobufConfig, streams, runProtoc) map {
-    (out, srcDirs, includePaths, includeFilter, excludeFilter, protocOpts, otherTargets, streams, protocCommand) =>
-      val schemas = srcDirs.toSet[File].flatMap(srcDir => (srcDir ** (includeFilter -- excludeFilter)).get.map(_.getAbsoluteFile))
-      val cachedCompile = FileFunction.cached(streams.cacheDirectory / "protobuf", inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(protocCommand, schemas, includePaths, protocOpts, otherTargets, out.log)
+    Def.task {
+      val out     = streams.value
+      val schemas = (sourceDirectories in protobufConfig).value.toSet[File] flatMap { srcDir =>
+        val incF    = (includeFilter in protobufConfig).value
+        val excF    = (excludeFilter in protobufConfig).value
+        (srcDir ** (incF -- excF)).get.map(_.getAbsoluteFile)
+      }
+      // Include Scala binary version like "_2.11" for cross building.
+      val cacheFile = out.cacheDirectory / s"protobuf_${scalaBinaryVersion.value}"
+      val cachedCompile = FileFunction.cached(cacheFile, inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
+        compile(runProtoc.value,
+          schemas,
+          (includePaths in protobufConfig).value,
+          (protocOptions in protobufConfig).value,
+          (generatedTargets in protobufConfig).value,
+          out.log)
       }
       cachedCompile(schemas).toSeq
-  }
+    }
 
   private[this] def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
     (out, deps, extractTarget) =>
