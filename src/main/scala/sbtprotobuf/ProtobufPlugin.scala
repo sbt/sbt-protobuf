@@ -128,9 +128,9 @@ object ProtobufPlugin extends Plugin {
       cachedCompile(schemas).toSeq
     }
 
-  private[this] def unpackDependenciesTask = (streams, managedClasspath in protobufConfig, externalIncludePath in protobufConfig) map {
-    (out, deps, extractTarget) =>
-      val extractedFiles = unpack(deps.map(_.data), extractTarget, out.log)
-      UnpackedDependencies(extractTarget, extractedFiles)
+  private[this] def unpackDependenciesTask = Def.task {
+    val extractTarget = (externalIncludePath in protobufConfig).value
+    val extractedFiles = unpack((managedClasspath in protobufConfig).value.map(_.data), extractTarget, streams.value.log)
+    UnpackedDependencies(extractTarget, extractedFiles)
   }
 }
