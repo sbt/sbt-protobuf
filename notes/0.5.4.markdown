@@ -1,0 +1,6 @@
+- [sbt 0.13.13](https://github.com/sbt/sbt-protobuf/commit/3bbf2599002dafe7c82bafc102eb7985019587b5)
+- [update protobuf-java 3.1.0](https://github.com/sbt/sbt-protobuf/commit/ac7ed5127e6303c3eb770a342f0a56988233acb7)
+- [Include scalaBinaryVersion to the cache.](https://github.com/sbt/sbt-protobuf/commit/4eca548b44290423089d48156a5703b6a5b960dc)
+- [Failing test case](https://github.com/sbt/sbt-protobuf/commit/3a675c85afd20cbdf21be40cb04deeaa0cf0f1e6)
+- [fix typo](https://github.com/sbt/sbt-protobuf/commit/624bb850c94b31cb74ca5d4e2a4a915a3a1971dd)
+- [avoid deprecated methods since sbt 0.13.13](https://github.com/sbt/sbt-protobuf/commit/f5b806a4ddfb241244502e8d74e7f1b2fe6a9465)
