@@ -6,4 +6,4 @@
   else addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % pluginVersion)
 }
 
-libraryDependencies += "com.github.os72" % "protoc-jar" % "3.0.0"
+libraryDependencies += "com.github.os72" % "protoc-jar" % "3.1.0.1"
