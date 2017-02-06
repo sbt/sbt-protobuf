@@ -1,0 +1,45 @@
+> compile
+
+# test for https://github.com/sbt/sbt-protobuf/pull/29
+-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test1.java
+-$ exists target/scala-2.10/classes/test/Test1.class
+
+# https://github.com/sbt/sbt-protobuf/tree/v0.5.0#declaring-dependencies
+$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test2.java
+$ exists target/scala-2.10/classes/test/Test2.class
+
+# Ensure task is scoped
+-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test3.java
+-$ exists target/scala-2.10/classes/test/Test3.class
+-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test4.java
+-$ exists target/scala-2.10/classes/test/Test4.class
+
+# Ensure that test classes weren't generated yet
+-$ exists target/scala-2.10/src_managed/test/compiled_protobuf/test/Test3.java
+-$ exists target/scala-2.10/test-classes/test/Test3.class
+-$ exists target/scala-2.10/src_managed/test/compiled_protobuf/test/Test4.java
+-$ exists target/scala-2.10/test-classes/test/Test4.class
+
+> clean
+
+-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test2.java
+
+> compile
+> ++ 2.11.8
+> compile
+$ exists target/scala-2.11/src_managed/main/compiled_protobuf/test/Test2.java
+
+# Ensure test-scoped classes are generated with respect to test-scoped settings
+> test
+-$ exists target/scala-2.11/src_managed/test/compiled_protobuf/test/Test3.java
+-$ exists target/scala-2.11/test-classes/test/Test3.class
+$ exists target/scala-2.11/src_managed/test/compiled_protobuf/test/Test4.java
+$ exists target/scala-2.11/test-classes/test/Test4.class
+
+> clean
+-$ exists target/scala-2.11/src_managed/test/compiled_protobuf/test/Test4.java
+
+> compile
+> test
+
+> checkJar
