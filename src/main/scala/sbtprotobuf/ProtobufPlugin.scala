@@ -5,9 +5,12 @@ import Keys._
 
 import java.io.File
 
+object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
 
-object ProtobufPlugin extends Plugin {
-  val protobufConfig = config("protobuf")
+object ProtobufPlugin extends ScopedProtobufPlugin(Compile)
+
+class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: String = "") extends Plugin {
+  val protobufConfig = config("protobuf" + configurationPostfix)
 
   val includePaths = TaskKey[Seq[File]]("protobuf-include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
@@ -19,10 +22,10 @@ object ProtobufPlugin extends Plugin {
   val protocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
-    sourceDirectory := { (sourceDirectory in Compile).value / "protobuf" },
+    sourceDirectory := { (sourceDirectory in configuration).value / "protobuf" },
     sourceDirectories := (sourceDirectory.value :: Nil),
     includeFilter := "*.proto",
-    javaSource := {(sourceManaged in Compile).value / "compiled_protobuf" },
+    javaSource := { (sourceManaged in configuration).value / "compiled_protobuf" },
     externalIncludePath := (target.value / "protobuf_external"),
     protoc := "protoc",
     runProtoc := (args => Process(protoc.value, args) ! streams.value.log),
@@ -52,10 +55,10 @@ object ProtobufPlugin extends Plugin {
 
   )) ++ Seq[Setting[_]](
     watchSources ++= ((sourceDirectory in protobufConfig).value ** "*.proto").get,
-    sourceGenerators in Compile += (generate in protobufConfig).taskValue,
+    sourceGenerators in configuration += (generate in protobufConfig).taskValue,
     cleanFiles ++= (generatedTargets in protobufConfig).value.map{_._1},
     cleanFiles += (externalIncludePath in protobufConfig).value,
-    managedSourceDirectories in Compile ++= (generatedTargets in protobufConfig).value.map{_._1},
+    managedSourceDirectories in configuration ++= (generatedTargets in protobufConfig).value.map{_._1},
     libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value),
     ivyConfigurations += protobufConfig
   )
