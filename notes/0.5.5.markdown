@@ -1,0 +1,2 @@
+- [protobuf 3.2.0](https://github.com/sbt/sbt-protobuf/commit/b11e9bfd11400b69455477e9f3e336f8acbcf442)
+- [Added task scoping to sbt-protobuf](https://github.com/sbt/sbt-protobuf/pull/43)
