@@ -2,7 +2,7 @@ import sbtprotobuf.{ProtobufPlugin=>PB}
 
 PB.protobufSettings
 
-version in PB.protobufConfig := "3.1.0"
+version in PB.protobufConfig := "3.2.0"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PB.protobufConfig).value % PB.protobufConfig.name
 

@@ -29,7 +29,7 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
     externalIncludePath := (target.value / "protobuf_external"),
     protoc := "protoc",
     runProtoc := (args => Process(protoc.value, args) ! streams.value.log),
-    version := "3.1.0",
+    version := "3.2.0",
 
     generatedTargets := Nil,
     generatedTargets += Tuple2((javaSource in protobufConfig).value, "*.java"), // add javaSource to the list of patterns

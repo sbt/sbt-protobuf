@@ -6,7 +6,7 @@ PB.protobufSettings
 
 PBT.protobufSettings
 
-version in PB.protobufConfig := "3.1.0"
+version in PB.protobufConfig := "3.2.0"
 
 version in PBT.protobufConfig := (version in PB.protobufConfig).value
 
