@@ -2,7 +2,7 @@ package sbtprotobuf
 
 import sbt._
 import Keys._
-import sbt.Defaults.collectFiles
+import sbt.Defaults.{collectFiles, packageTaskSettings}
 import java.io.File
 
 object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
@@ -11,6 +11,7 @@ object ProtobufPlugin extends ScopedProtobufPlugin(Compile)
 
 class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: String = "") extends Plugin {
   val protobufConfig = config("protobuf" + configurationPostfix)
+  val protoClassifier = "proto"
 
   val includePaths = TaskKey[Seq[File]]("protobuf-include-paths", "The paths that contain *.proto dependencies.")
   val protoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
@@ -20,6 +21,7 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
   val generate = TaskKey[Seq[File]]("protobuf-generate", "Compile the protobuf sources.")
   val unpackDependencies = TaskKey[UnpackedDependencies]("protobuf-unpack-dependencies", "Unpack dependencies.")
   val protocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
+  val packageProto = TaskKey[File]("package-proto", "Produces a proto artifact, such as a jar containing .proto files")
 
   lazy val protobufSettings: Seq[Setting[_]] = inConfig(protobufConfig)(Seq[Setting[_]](
     sourceDirectory := { (sourceDirectory in configuration).value / "protobuf" },
@@ -53,14 +55,17 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
 
     generate := sourceGeneratorTask.dependsOn(unpackDependencies).value
 
-  )) ++ Seq[Setting[_]](
+  )) ++ inConfig(protobufConfig)(
+    packageTaskSettings(packageProto, packageProtoMappings)
+  ) ++ Seq[Setting[_]](
     watchSources ++= ((sourceDirectory in protobufConfig).value ** "*.proto").get,
     sourceGenerators in configuration += (generate in protobufConfig).taskValue,
     cleanFiles ++= (generatedTargets in protobufConfig).value.map{_._1},
     cleanFiles += (externalIncludePath in protobufConfig).value,
     managedSourceDirectories in configuration ++= (generatedTargets in protobufConfig).value.map{_._1},
     libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value),
-    ivyConfigurations += protobufConfig
+    ivyConfigurations += protobufConfig,
+    setProtoArtifact
   )
 
   case class UnpackedDependencies(dir: File, files: Seq[File])
@@ -132,5 +137,17 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
     val extractTarget = (externalIncludePath in protobufConfig).value
     val extractedFiles = unpack((managedClasspath in protobufConfig).value.map(_.data), extractTarget, streams.value.log)
     UnpackedDependencies(extractTarget, extractedFiles)
+  }
+
+  private[this] def packageProtoMappings = Def.task {
+    collectFiles(sourceDirectories in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig)
+      .value.map(f => (f, f.getName))
+  }
+
+  private[this] val setProtoArtifact = artifact in (protobufConfig, packageProto) := {
+    val previous: Artifact = (artifact in (protobufConfig, packageProto)).value
+    previous
+      .copy(configurations = List(protobufConfig))
+      .copy(classifier = Some(protoClassifier))
   }
 }
