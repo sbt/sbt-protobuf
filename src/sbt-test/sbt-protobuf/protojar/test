@@ -1,0 +1,4 @@
+> clean
+> protobuf:packageProto
+$ exists target/scala-2.10/protojar_2.10-0.1-SNAPSHOT-proto.jar
+> checkJar
