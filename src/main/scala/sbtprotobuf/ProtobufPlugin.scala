@@ -2,7 +2,7 @@ package sbtprotobuf
 
 import sbt._
 import Keys._
-
+import sbt.Defaults.collectFiles
 import java.io.File
 
 object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
@@ -113,11 +113,8 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
   private[this] def sourceGeneratorTask =
     Def.task {
       val out     = streams.value
-      val schemas = (sourceDirectories in protobufConfig).value.toSet[File] flatMap { srcDir =>
-        val incF    = (includeFilter in protobufConfig).value
-        val excF    = (excludeFilter in protobufConfig).value
-        (srcDir ** (incF -- excF)).get.map(_.getAbsoluteFile)
-      }
+      val schemas = collectFiles(sourceDirectories in protobufConfig, includeFilter in protobufConfig, excludeFilter in protobufConfig)
+        .value.toSet[File].map(_.getAbsoluteFile)
       // Include Scala binary version like "_2.11" for cross building.
       val cacheFile = out.cacheDirectory / s"protobuf_${scalaBinaryVersion.value}"
       val cachedCompile = FileFunction.cached(cacheFile, inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
