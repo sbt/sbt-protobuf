@@ -48,6 +48,7 @@ object MyBuild extends Build {
 
 
 ### Declaring dependencies
+#### Artifacts containing both `*.proto` files and java binaries
 Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.java` files, you can specify the dependency like so:
 
 ```scala
@@ -63,6 +64,12 @@ Line #2 adds the artifact to the regular compile classpath.
 
 The `*.proto` files of dependencies are extracted and added to the `--proto_path` parameter for `protoc`, but are not compiled.
 
+#### Artifacts in the `protobuf` configuration containing only `*.proto` files
+You can specify a dependency on an artifact that contains only `.proto` files in the `protobuf` configuration with a `proto` classifier like so:
+```
+libraryDependencies += ("some.groupID" % "some.artifactID" % "1.0" classifier PB.protoClassifier) % s"${PB.protobufConfig.name}->${PB.protobufConfig.name}"
+```
+
 ### Compiling external proto files
 Sometimes it's desirable to compile external proto files (eg. because the library is compiled with an older version of `protoc`).
 This can be achieved by adding the following setting:
@@ -76,6 +83,12 @@ sourceDirectories in PB.protobufConfig += (externalIncludePath in PB.protobufCon
 
 ```scala
 unmanagedResourceDirectories in Compile += (sourceDirectory in PB.protobufConfig).value
+```
+
+Alternatively, `*.proto` files can be packaged in a separate jar file in the `protobuf` configuration with a `proto` classifier:
+
+```scala
+addArtifact(artifact in (PB.protobufConfig, PB.packageProto), PB.packageProto in PB.protobufConfig)
 ```
 
 ### Changing the location of the generated java files
@@ -198,6 +211,11 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>protobufRunProtoc</td>
     <td>A function that executes the protobuf compiler with the given arguments,
     returning the exit code. The default implementation runs the executable referenced by the `protoc` setting.</td>
+</tr>
+<tr>
+    <td>packageProto</td>
+    <td>packageProto</td>
+    <td>Produces a jar artifact containing only *.proto files, with a `proto` classifier</td>
 </tr>
 
 </table>
