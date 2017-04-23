@@ -7,7 +7,7 @@ A plugin for sbt that transforms *.proto files into gazillion-loc Java source fi
 ## Usage
 
 ### Adding the plugin dependency
-In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
+In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following line:
 
 ```scala
 addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.5.5")
@@ -48,6 +48,7 @@ object MyBuild extends Build {
 
 
 ### Declaring dependencies
+#### Artifacts containing both `*.proto` files and java binaries
 Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.java` files, you can specify the dependency like so:
 
 ```scala
@@ -62,6 +63,12 @@ Internally the setting `externalIncludePath` is used to track 3rd party proto fi
 Line #2 adds the artifact to the regular compile classpath.
 
 The `*.proto` files of dependencies are extracted and added to the `--proto_path` parameter for `protoc`, but are not compiled.
+
+#### Artifacts in the `protobuf` configuration containing only `*.proto` files
+You can specify a dependency on an artifact that contains only `.proto` files in the `protobuf` configuration with a `proto` classifier like so:
+```
+libraryDependencies += ("some.groupID" % "some.artifactID" % "1.0" classifier PB.protoClassifier) % s"${PB.protobufConfig.name}->${PB.protobufConfig.name}"
+```
 
 ### Compiling external proto files
 Sometimes it's desirable to compile external proto files (eg. because the library is compiled with an older version of `protoc`).
@@ -78,6 +85,12 @@ sourceDirectories in PB.protobufConfig += (externalIncludePath in PB.protobufCon
 unmanagedResourceDirectories in Compile += (sourceDirectory in PB.protobufConfig).value
 ```
 
+Alternatively, `*.proto` files can be packaged in a separate jar file in the `protobuf` configuration with a `proto` classifier:
+
+```scala
+addArtifact(artifact in (PB.protobufConfig, PB.packageProto), PB.packageProto in PB.protobufConfig)
+```
+
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
@@ -87,12 +100,12 @@ javaSource in PB.protobufConfig := ((sourceDirectory in Compile).value / "genera
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
-###Note
+### Note
 
-1,If you occurred compile error,as ```[...] is already defined as object [...]``` you could change the compile order
+1. If you encounter compile errors, as ```[...] is already defined as object [...]``` you could change the compile order
 as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 
-2,The inner message's name could not be the ```.proto```'s file name.that will cause problem too,you could change the inner message's name or the ```.proto``` file name or add the ```option java_outer_classname = "NewNameNotAsTheFileName";``` to you ```.proto``` file.
+2. The inner message's name could not be the ```.proto```'s file name.that will cause problem too, you could change the inner message's name or the ```.proto``` file name or add the ```option java_outer_classname = "NewNameNotAsTheFileName";``` to you ```.proto``` file.
 
 ### Additional options to protoc
 All options passed to `protoc` are configured via the `protobufProtocOptions`. To add options, for example to run a custom plugin, add them to this setting key. For example:
@@ -198,6 +211,11 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>protobufRunProtoc</td>
     <td>A function that executes the protobuf compiler with the given arguments,
     returning the exit code. The default implementation runs the executable referenced by the `protoc` setting.</td>
+</tr>
+<tr>
+    <td>packageProto</td>
+    <td>packageProto</td>
+    <td>Produces a jar artifact containing only *.proto files, with a `proto` classifier</td>
 </tr>
 
 </table>
