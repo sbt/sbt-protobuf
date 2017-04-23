@@ -7,7 +7,7 @@ A plugin for sbt that transforms *.proto files into gazillion-loc Java source fi
 ## Usage
 
 ### Adding the plugin dependency
-In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
+In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following line:
 
 ```scala
 addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.5.5")
@@ -87,12 +87,12 @@ javaSource in PB.protobufConfig := ((sourceDirectory in Compile).value / "genera
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
-###Note
+### Note
 
-1,If you occurred compile error,as ```[...] is already defined as object [...]``` you could change the compile order
+1. If you encounter compile errors, as ```[...] is already defined as object [...]``` you could change the compile order
 as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 
-2,The inner message's name could not be the ```.proto```'s file name.that will cause problem too,you could change the inner message's name or the ```.proto``` file name or add the ```option java_outer_classname = "NewNameNotAsTheFileName";``` to you ```.proto``` file.
+2. The inner message's name could not be the ```.proto```'s file name.that will cause problem too, you could change the inner message's name or the ```.proto``` file name or add the ```option java_outer_classname = "NewNameNotAsTheFileName";``` to you ```.proto``` file.
 
 ### Additional options to protoc
 All options passed to `protoc` are configured via the `protobufProtocOptions`. To add options, for example to run a custom plugin, add them to this setting key. For example:
