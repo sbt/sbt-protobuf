@@ -5,6 +5,9 @@ import Keys._
 
 import java.io.File
 
+import scala.util.{Failure, Try}
+import scala.util.control.NonFatal
+
 object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
 
 object ProtobufPlugin extends ScopedProtobufPlugin(Compile)
@@ -29,8 +32,22 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
     externalIncludePath := (target.value / "protobuf_external"),
     protoc := "protoc",
     runProtoc := (args => Process(protoc.value, args) ! streams.value.log),
-    version := "3.2.0",
-
+    version := {
+      def error(message: String, t: Throwable): Failure[String] = {
+        val e = new Exception(message)
+        e.initCause(t)
+        Failure(e)
+      }
+      Try("protoc --version".!!.toString).recoverWith {
+        case NonFatal(e) => error("Exec failure trying to get protobuf version. " +
+          "Is protoc on your path?", e)
+      } .flatMap { text: String =>
+        Try(text.split(" ")(1).trim()).recoverWith {
+          case NonFatal(e) => error("Parse error trying to get protobuf version from " +
+            s"""second field in command output. Command output was "$text"""", e)
+        }
+      } .get
+    },
     generatedTargets := Nil,
     generatedTargets += Tuple2((javaSource in protobufConfig).value, "*.java"), // add javaSource to the list of patterns
 
