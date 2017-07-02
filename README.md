@@ -46,7 +46,7 @@ The `*.proto` files of dependencies are extracted and added to the `--proto_path
 #### Artifacts in the `protobuf` configuration containing only `*.proto` files
 You can specify a dependency on an artifact that contains only `.proto` files in the `protobuf` configuration with a `proto` classifier like so:
 ```
-libraryDependencies += ("some.groupID" % "some.artifactID" % "1.0" classifier PB.protoClassifier) % s"${PB.protobufConfig.name}->${PB.protobufConfig.name}"
+libraryDependencies += ("some.groupID" % "some.artifactID" % "1.0" classifier protoClassifier) % s"${protobufConfig.name}->${protobufConfig.name}"
 ```
 
 ### Compiling external proto files
@@ -67,7 +67,7 @@ unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).v
 Alternatively, `*.proto` files can be packaged in a separate jar file in the `protobuf` configuration with a `proto` classifier:
 
 ```scala
-addArtifact(artifact in (PB.protobufConfig, protobufPackage), protobufPackage in protobufConfig)
+addArtifact(artifact in (protobufConfig, protobufPackage), protobufPackage in protobufConfig)
 ```
 
 ### Changing the location of the generated java files
