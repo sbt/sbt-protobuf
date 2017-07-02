@@ -1,18 +1,16 @@
-import sbtprotobuf.{ProtobufPlugin=>PB}
+enablePlugins(ProtobufPlugin)
 
-PB.protobufSettings
+version in protobufConfig := "3.3.1"
 
-version in PB.protobufConfig := "3.3.1"
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value % protobufConfig.name
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PB.protobufConfig).value % PB.protobufConfig.name
-
-PB.runProtoc in PB.protobufConfig := { args =>
+protobufRunProtoc in protobufConfig := { args =>
   com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
 }
 
-excludeFilter in PB.protobufConfig := "test1.proto"
+excludeFilter in protobufConfig := "test1.proto"
 
-unmanagedResourceDirectories in Compile += (sourceDirectory in PB.protobufConfig).value
+unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).value
 
 TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
   val files = IO.unzip((packageBin in Compile).value, dir, "*.proto")

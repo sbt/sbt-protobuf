@@ -1,18 +1,16 @@
-import sbtprotobuf.{ProtobufPlugin=>PB}
-
-val commonSettings = PB.protobufSettings ++ Seq(
+val commonSettings = Seq(
   scalaVersion := "2.11.11",
-  version in PB.protobufConfig := "3.3.1",
-  PB.runProtoc in PB.protobufConfig := { args =>
+  version in protobufConfig := "3.3.1",
+  protobufRunProtoc in protobufConfig := { args =>
     com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
   }
 )
 
 val foo = project.settings(
   commonSettings
-)
+).enablePlugins(ProtobufPlugin)
 
 val bar = project.settings(
   commonSettings,
-  PB.includePaths in PB.protobufConfig += (sourceDirectory in PB.protobufConfig in foo).value
-).dependsOn(foo)
+  protobufIncludePaths in protobufConfig += (sourceDirectory in protobufConfig in foo).value
+).dependsOn(foo).enablePlugins(ProtobufPlugin)

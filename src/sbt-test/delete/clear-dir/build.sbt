@@ -1,7 +1,5 @@
-import sbtprotobuf.{ProtobufPlugin=>PB}
+enablePlugins(ProtobufPlugin)
 
-PB.protobufSettings
-
-PB.runProtoc in PB.protobufConfig := { args =>
+protobufRunProtoc in protobufConfig := { args =>
   com.github.os72.protocjar.Protoc.runProtoc("-v261" +: args.toArray)
 }

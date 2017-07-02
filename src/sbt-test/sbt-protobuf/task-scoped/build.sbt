@@ -1,30 +1,26 @@
-import sbtprotobuf.ScopedProtobufPlugin
-import sbtprotobuf.{ProtobufPlugin=>PB}
-import sbtprotobuf.{ProtobufTestPlugin=>PBT}
+import sbtprotobuf.ProtobufTestPlugin.{Keys => PBT}
 
-PB.protobufSettings
+enablePlugins(ProtobufPlugin, ProtobufTestPlugin)
 
-PBT.protobufSettings
+version in protobufConfig := "3.3.1"
 
-version in PB.protobufConfig := "3.3.1"
+version in PBT.protobufConfig := (version in protobufConfig).value
 
-version in PBT.protobufConfig := (version in PB.protobufConfig).value
-
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PB.protobufConfig).value % PB.protobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value % protobufConfig.name
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.protobufConfig).value % PBT.protobufConfig.name
 
-PB.runProtoc in PB.protobufConfig := { args =>
+protobufRunProtoc in protobufConfig := { args =>
   com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
 }
 
-PBT.runProtoc in PBT.protobufConfig := (PB.runProtoc in PB.protobufConfig).value
+PBT.protobufRunProtoc in PBT.protobufConfig := (protobufRunProtoc in protobufConfig).value
 
-excludeFilter in PB.protobufConfig := "test1.proto"
+excludeFilter in protobufConfig := "test1.proto"
 
 excludeFilter in PBT.protobufConfig := "test3.proto"
 
-unmanagedResourceDirectories in Compile += (sourceDirectory in PB.protobufConfig).value
+unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).value
 
 unmanagedResourceDirectories in Test += (sourceDirectory in PBT.protobufConfig).value
 
