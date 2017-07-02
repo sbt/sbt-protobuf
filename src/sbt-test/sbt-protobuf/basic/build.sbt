@@ -2,12 +2,12 @@ import sbtprotobuf.{ProtobufPlugin=>PB}
 
 PB.protobufSettings
 
-version in PB.protobufConfig := "3.2.0"
+version in PB.protobufConfig := "3.3.1"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PB.protobufConfig).value % PB.protobufConfig.name
 
 PB.runProtoc in PB.protobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v310" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
 }
 
 excludeFilter in PB.protobufConfig := "test1.proto"

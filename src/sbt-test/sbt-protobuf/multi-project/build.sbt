@@ -2,9 +2,9 @@ import sbtprotobuf.{ProtobufPlugin=>PB}
 
 val commonSettings = PB.protobufSettings ++ Seq(
   scalaVersion := "2.11.10",
-  version in PB.protobufConfig := "3.2.0",
+  version in PB.protobufConfig := "3.3.1",
   PB.runProtoc in PB.protobufConfig := { args =>
-    com.github.os72.protocjar.Protoc.runProtoc("-v320" +: args.toArray)
+    com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
   }
 )
 

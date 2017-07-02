@@ -6,7 +6,7 @@ PB.protobufSettings
 
 PBT.protobufSettings
 
-version in PB.protobufConfig := "3.2.0"
+version in PB.protobufConfig := "3.3.1"
 
 version in PBT.protobufConfig := (version in PB.protobufConfig).value
 
@@ -15,7 +15,7 @@ libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PB.
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.protobufConfig).value % PBT.protobufConfig.name
 
 PB.runProtoc in PB.protobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v310" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
 }
 
 PBT.runProtoc in PBT.protobufConfig := (PB.runProtoc in PB.protobufConfig).value
