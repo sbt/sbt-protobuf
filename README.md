@@ -87,7 +87,7 @@ javaSource in PB.protobufConfig := ((sourceDirectory in Compile).value / "genera
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
 
-###Note
+### Note
 
 1,If you occurred compile error,as ```[...] is already defined as object [...]``` you could change the compile order
 as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
