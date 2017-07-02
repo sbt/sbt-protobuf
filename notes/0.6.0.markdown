@@ -1,0 +1,4 @@
+- [migrate to AutoPlugin](https://github.com/sbt/sbt-protobuf/commit/c02688aee91e4bb9bb34c7f8f8e7d48f5cb8b77b)
+- [protobuf 3.3](https://github.com/sbt/sbt-protobuf/commit/cfde934dd4100eb199f26db0c255391153cef616)
+- [Package proto files](https://github.com/sbt/sbt-protobuf/pull/47)
+- [add multi-project example](https://github.com/sbt/sbt-protobuf/commit/6bce04a72b323a5abf99753bfdbea80917ce53f6)
