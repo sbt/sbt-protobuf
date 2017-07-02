@@ -12,8 +12,11 @@ protobufRunProtoc in protobufConfig := { args =>
 
 addArtifact(artifact in (protobufConfig, protobufPackage), protobufPackage in protobufConfig)
 
-TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
-  val files = IO.unzip((protobufPackage in protobufConfig).value, dir)
-  val expect = Set(dir / "test1.proto", dir / "META-INF" / "MANIFEST.MF")
-  assert(files == expect, s"$files $expect")
+TaskKey[Unit]("checkJar") := {
+  val jar = (protobufPackage in protobufConfig).value
+  IO.withTemporaryDirectory{ dir =>
+    val files = IO.unzip(jar, dir)
+    val expect = Set(dir / "test1.proto", dir / "META-INF" / "MANIFEST.MF")
+    assert(files == expect, s"$files $expect")
+  }
 }

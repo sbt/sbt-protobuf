@@ -2,6 +2,8 @@ enablePlugins(ProtobufPlugin)
 
 scalaVersion := "2.10.6"
 
+crossScalaVersions += "2.11.11"
+
 version in protobufConfig := "3.3.1"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value % protobufConfig.name
@@ -14,10 +16,13 @@ excludeFilter in protobufConfig := "test1.proto"
 
 unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).value
 
-TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
-  val files = IO.unzip((packageBin in Compile).value, dir, "*.proto")
-  val expect = Set("test1.proto", "test2.proto").map(dir / _)
-  assert(files == expect, s"$files $expect")
+TaskKey[Unit]("checkJar") := {
+  val jar = (packageBin in Compile).value
+  IO.withTemporaryDirectory{ dir =>
+    val files = IO.unzip(jar, dir, "*.proto")
+    val expect = Set("test1.proto", "test2.proto").map(dir / _)
+    assert(files == expect, s"$files $expect")
+  }
 }
 
 // https://github.com/sbt/sbt-protobuf/issues/37

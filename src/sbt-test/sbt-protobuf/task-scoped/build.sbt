@@ -1,5 +1,9 @@
 import sbtprotobuf.ProtobufTestPlugin.{Keys => PBT}
 
+scalaVersion := "2.10.6"
+
+crossScalaVersions += "2.11.11"
+
 enablePlugins(ProtobufPlugin, ProtobufTestPlugin)
 
 version in protobufConfig := "3.3.1"
@@ -24,13 +28,18 @@ unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).v
 
 unmanagedResourceDirectories in Test += (sourceDirectory in PBT.protobufConfig).value
 
-TaskKey[Unit]("checkJar") := IO.withTemporaryDirectory{ dir =>
-  val files = IO.unzip((packageBin in Compile).value, dir, "*.proto")
-  val expect = Set("test1.proto", "test2.proto").map(dir / _)
-  val testfiles = IO.unzip((packageBin in Test).value, dir, "*.proto")
-  val testexpect = Set("test3.proto", "test4.proto").map(dir / _)
-  assert(files == expect, s"$files $expect")
-  assert(testfiles == testexpect, s"$testfiles $testexpect")
+TaskKey[Unit]("checkJar") := {
+  val compileJar = (packageBin in Compile).value
+  val testJar = (packageBin in Test).value
+
+  IO.withTemporaryDirectory{ dir =>
+    val files = IO.unzip(compileJar, dir, "*.proto")
+    val expect = Set("test1.proto", "test2.proto").map(dir / _)
+    val testfiles = IO.unzip(testJar, dir, "*.proto")
+    val testexpect = Set("test3.proto", "test4.proto").map(dir / _)
+    assert(files == expect, s"$files $expect")
+    assert(testfiles == testexpect, s"$testfiles $testexpect")
+  }
 }
 
 // https://github.com/sbt/sbt-protobuf/issues/37

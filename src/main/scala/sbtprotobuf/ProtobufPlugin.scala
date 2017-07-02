@@ -11,7 +11,7 @@ object ProtobufPlugin extends ScopedProtobufPlugin(Compile) {
   val autoImport = Keys
 }
 
-class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: String = "") extends AutoPlugin { self =>
+class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: String = "") extends AutoPlugin with Compat { self =>
 
   override def requires = sbt.plugins.JvmPlugin
 
@@ -45,7 +45,11 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
     javaSource := { (sourceManaged in configuration).value / "compiled_protobuf" },
     protobufExternalIncludePath := (target.value / "protobuf_external"),
     protobufProtoc := "protoc",
-    protobufRunProtoc := (args => Process(protobufProtoc.value, args) ! streams.value.log),
+    protobufRunProtoc := {
+      val s = streams.value
+      val protoc = protobufProtoc.value
+      args => Process(protoc, args) ! s.log
+    },
     version := "3.3.1",
 
     protobufGeneratedTargets := Nil,
@@ -137,13 +141,18 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
         .value.toSet[File].map(_.getAbsoluteFile)
       // Include Scala binary version like "_2.11" for cross building.
       val cacheFile = out.cacheDirectory / s"protobuf_${scalaBinaryVersion.value}"
+      val runProtoc = protobufRunProtoc.value
+      val includePaths = (protobufIncludePaths in protobufConfig).value
+      val options = (protobufProtocOptions in protobufConfig).value
+      val targets = (protobufGeneratedTargets in protobufConfig).value
       val cachedCompile = FileFunction.cached(cacheFile, inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(protobufRunProtoc.value,
-          schemas,
-          (protobufIncludePaths in protobufConfig).value,
-          (protobufProtocOptions in protobufConfig).value,
-          (protobufGeneratedTargets in protobufConfig).value,
-          out.log)
+        compile(
+          protocCommand = runProtoc,
+          schemas = schemas,
+          includePaths = includePaths,
+          protocOptions = options,
+          generatedTargets = targets,
+          log = out.log)
       }
       cachedCompile(schemas).toSeq
     }
@@ -159,10 +168,4 @@ class ScopedProtobufPlugin(configuration: Configuration, configurationPostfix: S
       .value.map(f => (f, f.getName))
   }
 
-  private[this] val setProtoArtifact = artifact in (protobufConfig, protobufPackage) := {
-    val previous: Artifact = (artifact in (protobufConfig, protobufPackage)).value
-    previous
-      .copy(configurations = List(protobufConfig))
-      .copy(classifier = Some(protoClassifier))
-  }
 }
