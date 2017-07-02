@@ -1,5 +1,7 @@
 enablePlugins(ProtobufPlugin)
 
+scalaVersion := "2.10.6"
+
 version in protobufConfig := "3.3.1"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value % protobufConfig.name
