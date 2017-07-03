@@ -1,0 +1,1 @@
+- [cross build for sbt 1.0](https://github.com/sbt/sbt-protobuf/commit/b3574f2ba07a0de27dbede836bafbc38f7baa500)
