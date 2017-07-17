@@ -1,7 +1,7 @@
 val commonSettings = Seq(
   scalaVersion := "2.11.11",
-  version in protobufConfig := "3.3.1",
-  protobufRunProtoc in protobufConfig := { args =>
+  version in ProtobufConfig := "3.3.1",
+  protobufRunProtoc in ProtobufConfig := { args =>
     com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
   }
 )
@@ -12,5 +12,5 @@ val foo = project.settings(
 
 val bar = project.settings(
   commonSettings,
-  protobufIncludePaths in protobufConfig += (sourceDirectory in protobufConfig in foo).value
+  protobufIncludePaths in ProtobufConfig += (sourceDirectory in ProtobufConfig in foo).value
 ).dependsOn(foo).enablePlugins(ProtobufPlugin)

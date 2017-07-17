@@ -14,7 +14,7 @@ addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.6.1")
 ```
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
-The version for `protobuf-java` can be controlled by the setting `version in protobufConfig` (set to `3.3.1` by default).
+The version for `protobuf-java` can be controlled by the setting `version in ProtobufConfig` (set to `3.3.1` by default).
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
@@ -31,7 +31,7 @@ enablePlugins(ProtobufPlugin)
 Assuming an artifact contains both `*.proto` files as well as the binaries of the generated `*.java` files, you can specify the dependency like so:
 
 ```scala
-libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % protobufConfig.name // #1
+libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" % ProtobufConfig.name // #1
 
 libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" // #2
 ```
@@ -46,7 +46,7 @@ The `*.proto` files of dependencies are extracted and added to the `--proto_path
 #### Artifacts in the `protobuf` configuration containing only `*.proto` files
 You can specify a dependency on an artifact that contains only `.proto` files in the `protobuf` configuration with a `proto` classifier like so:
 ```
-libraryDependencies += ("some.groupID" % "some.artifactID" % "1.0" classifier protoClassifier) % s"${protobufConfig.name}->${protobufConfig.name}"
+libraryDependencies += ("some.groupID" % "some.artifactID" % "1.0" classifier protoClassifier) % s"${ProtobufConfig.name}->${ProtobufConfig.name}"
 ```
 
 ### Compiling external proto files
@@ -54,27 +54,27 @@ Sometimes it's desirable to compile external proto files (eg. because the librar
 This can be achieved by adding the following setting:
 
 ```scala
-sourceDirectories in protobufConfig += (protobufExternalIncludePath in protobufConfig).value
+sourceDirectories in ProtobufConfig += (protobufExternalIncludePath in ProtobufConfig).value
 ```
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
 ```scala
-unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).value
+unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value
 ```
 
 Alternatively, `*.proto` files can be packaged in a separate jar file in the `protobuf` configuration with a `proto` classifier:
 
 ```scala
-addArtifact(artifact in (protobufConfig, protobufPackage), protobufPackage in protobufConfig)
+addArtifact(artifact in (ProtobufConfig, protobufPackage), protobufPackage in ProtobufConfig)
 ```
 
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
 ```scala
-javaSource in protobufConfig := ((sourceDirectory in Compile).value / "generated")
+javaSource in ProtobufConfig := ((sourceDirectory in Compile).value / "generated")
 ```
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
@@ -90,16 +90,16 @@ as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 All options passed to `protoc` are configured via the `protobufProtocOptions`. To add options, for example to run a custom plugin, add them to this setting key. For example:
 
 ```scala
-protobufProtocOptions in protobufConfig ++= Seq("--custom-option")
+protobufProtocOptions in ProtobufConfig ++= Seq("--custom-option")
 ```
 
 ### Additional target directories
-The source directories where the files are generated, and the globs used to identify the generated files, are configured by `protobufGeneratedTargets in protobufConfig`.
-In case only Java files are generated, this setting doesn't need to change, since it automatically inherits the value of `javaSource in protobufConfig`, paired with the glob `*.java`.
+The source directories where the files are generated, and the globs used to identify the generated files, are configured by `protobufGeneratedTargets in ProtobufConfig`.
+In case only Java files are generated, this setting doesn't need to change, since it automatically inherits the value of `javaSource in ProtobufConfig`, paired with the glob `*.java`.
 In case other types of source files are generated, for example by using a custom plugin (see previous section), the corresponding target directories and source file globs must be configured by adding them to this setting. For example:
 
 ```scala
-protobufGeneratedTargets in protobufConfig ++= {
+protobufGeneratedTargets in ProtobufConfig ++= {
   Seq((sourceDirectory in Compile).value / "generated" / "scala", "*.scala")
 }
 ```
@@ -168,7 +168,7 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr>
     <td>protobufGeneratedTargets</td>
     <td></td>
-    <td><code>(file(</code>java source directory based on <code>javaSource in protobufConfig</code>), <code>"*.java")</code></td>
+    <td><code>(file(</code>java source directory based on <code>javaSource in ProtobufConfig</code>), <code>"*.java")</code></td>
     <td>the list of target directories and source file globs for the generated files</td>
 </tr>
 </table>
