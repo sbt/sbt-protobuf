@@ -4,17 +4,17 @@ scalaVersion := "2.10.6"
 
 crossScalaVersions += "2.11.11"
 
-version in protobufConfig := "3.3.1"
+version in ProtobufConfig := "3.3.1"
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value % protobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
 
-protobufRunProtoc in protobufConfig := { args =>
+protobufRunProtoc in ProtobufConfig := { args =>
   com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
 }
 
-excludeFilter in protobufConfig := "test1.proto"
+excludeFilter in ProtobufConfig := "test1.proto"
 
-unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).value
+unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value
 
 TaskKey[Unit]("checkJar") := {
   val jar = (packageBin in Compile).value

@@ -6,27 +6,27 @@ crossScalaVersions += "2.11.11"
 
 enablePlugins(ProtobufPlugin, ProtobufTestPlugin)
 
-version in protobufConfig := "3.3.1"
+version in ProtobufConfig := "3.3.1"
 
-version in PBT.protobufConfig := (version in protobufConfig).value
+version in PBT.ProtobufConfig := (version in ProtobufConfig).value
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in protobufConfig).value % protobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.protobufConfig).value % PBT.protobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.ProtobufConfig).value % PBT.ProtobufConfig.name
 
-protobufRunProtoc in protobufConfig := { args =>
+protobufRunProtoc in ProtobufConfig := { args =>
   com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
 }
 
-PBT.protobufRunProtoc in PBT.protobufConfig := (protobufRunProtoc in protobufConfig).value
+PBT.protobufRunProtoc in PBT.ProtobufConfig := (protobufRunProtoc in ProtobufConfig).value
 
-excludeFilter in protobufConfig := "test1.proto"
+excludeFilter in ProtobufConfig := "test1.proto"
 
-excludeFilter in PBT.protobufConfig := "test3.proto"
+excludeFilter in PBT.ProtobufConfig := "test3.proto"
 
-unmanagedResourceDirectories in Compile += (sourceDirectory in protobufConfig).value
+unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value
 
-unmanagedResourceDirectories in Test += (sourceDirectory in PBT.protobufConfig).value
+unmanagedResourceDirectories in Test += (sourceDirectory in PBT.ProtobufConfig).value
 
 TaskKey[Unit]("checkJar") := {
   val compileJar = (packageBin in Compile).value
