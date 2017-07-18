@@ -1,0 +1,1 @@
+- [cross build for sbt 1.0.0-RC2. capitalized `ProtobufConfig`](https://github.com/sbt/sbt-protobuf/commit/eeb5e6b5f53e74d9085c409bdc75c565748f41b1)
