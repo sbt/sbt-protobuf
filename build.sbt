@@ -36,7 +36,7 @@ scriptedBufferLog := false
 
 scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
 
-crossSbtVersions := Seq("0.13.15", "1.0.0-RC2")
+crossSbtVersions := Seq("0.13.16", "1.0.0-RC2")
 
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
