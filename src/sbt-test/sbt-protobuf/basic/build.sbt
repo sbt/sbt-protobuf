@@ -4,12 +4,10 @@ scalaVersion := "2.10.6"
 
 crossScalaVersions += "2.11.11"
 
-version in ProtobufConfig := "3.3.1"
-
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
 
 protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v340" +: args.toArray)
 }
 
 excludeFilter in ProtobufConfig := "test1.proto"

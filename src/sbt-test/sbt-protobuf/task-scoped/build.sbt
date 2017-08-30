@@ -6,8 +6,6 @@ crossScalaVersions += "2.11.11"
 
 enablePlugins(ProtobufPlugin, ProtobufTestPlugin)
 
-version in ProtobufConfig := "3.3.1"
-
 version in PBT.ProtobufConfig := (version in ProtobufConfig).value
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
@@ -15,7 +13,7 @@ libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in Pro
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.ProtobufConfig).value % PBT.ProtobufConfig.name
 
 protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v330" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v340" +: args.toArray)
 }
 
 PBT.protobufRunProtoc in PBT.ProtobufConfig := (protobufRunProtoc in ProtobufConfig).value
