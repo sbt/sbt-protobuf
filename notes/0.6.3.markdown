@@ -1,0 +1,2 @@
+- [protobuf 3.4.0](https://github.com/sbt/sbt-protobuf/commit/26a9d111d1b7352499dc999c5443be70f4d5d5c7)
+- [sbt 1.0.1](https://github.com/sbt/sbt-protobuf/commit/a22255e8c2e6408e2916a6095bbe4ac5d2aa42a9)
