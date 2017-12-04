@@ -5,7 +5,7 @@ scalaVersion := "2.10.6"
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
 
 protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v340" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v350" +: args.toArray)
 }
 
 addArtifact(artifact in (ProtobufConfig, protobufPackage), protobufPackage in ProtobufConfig)
