@@ -1,4 +1,4 @@
 > clean
 > protobuf:protobufPackage
-$ exists target/scala-2.10/protojar_2.10-0.1-SNAPSHOT-proto.jar
+$ exists target/scala-2.10/protojar_2.10-0.1.0-SNAPSHOT-proto.jar
 > checkJar
