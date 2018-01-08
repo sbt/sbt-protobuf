@@ -10,3 +10,11 @@ matrix:
     jdk: oraclejdk8
 script:
 - sbt "^^ ${SBT_VERSION}" test scripted
+cache:
+  directories:
+  - "$HOME/.ivy2/cache"
+  - "$HOME/.sbt/launchers"
+before_cache:
+- rm -rf $HOME/.ivy2/cache/com.github.gseitz
+- find $HOME/.sbt -name "*.lock" | xargs rm
+- find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
