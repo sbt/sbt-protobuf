@@ -100,7 +100,7 @@ In case other types of source files are generated, for example by using a custom
 
 ```scala
 protobufGeneratedTargets in ProtobufConfig ++= {
-  Seq((sourceDirectory in Compile).value / "generated" / "scala", "*.scala")
+  Seq(((sourceDirectory in Compile).value / "generated" / "scala", "*.scala"))
 }
 ```
 
