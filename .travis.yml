@@ -8,6 +8,8 @@ matrix:
     jdk: oraclejdk8
   - env: SBT_VERSION="1.1.0"
     jdk: oraclejdk8
+  - env: SBT_VERSION="1.2.6"
+    jdk: openjdk11
 script:
 - sbt "^^ ${SBT_VERSION}" test scripted
 cache:
