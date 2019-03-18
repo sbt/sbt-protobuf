@@ -35,7 +35,7 @@ ScriptedPlugin.scriptedSettings
 scriptedBufferLog := false
 
 scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
-scriptedLaunchOpts += s"-Dprotoc-jar.version=3.5.0"
+scriptedLaunchOpts += s"-Dprotoc-jar.version=3.7.0"
 
 crossSbtVersions := Seq("0.13.18", "1.0.4")
 

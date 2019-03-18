@@ -13,7 +13,7 @@ libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in Pro
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.ProtobufConfig).value % PBT.ProtobufConfig.name
 
 protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v350" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v370" +: args.toArray)
 }
 
 PBT.protobufRunProtoc in PBT.ProtobufConfig := (protobufRunProtoc in ProtobufConfig).value
