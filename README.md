@@ -14,7 +14,7 @@ addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % "0.6.4")
 ```
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
-The version for `protobuf-java` can be controlled by the setting `version in ProtobufConfig` (set to `3.4.0` by default).
+The version for `protobuf-java` can be controlled by the setting `version in ProtobufConfig` (set to `3.7.0` by default).
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
@@ -138,7 +138,7 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr>
     <td>version</td>
     <td>x</td>
-    <td><code>"3.4.0"</code></td>
+    <td><code>"3.7.0"</code></td>
     <td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td>
 </tr>
 <tr>
