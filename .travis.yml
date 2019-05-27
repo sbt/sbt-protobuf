@@ -1,5 +1,6 @@
 language: scala
 sudo: false
+dist: trusty
 matrix:
   include:
   - env: SBT_VERSION="0.13.18"
