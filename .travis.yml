@@ -9,7 +9,7 @@ matrix:
     jdk: oraclejdk8
   - env: SBT_VERSION="1.1.0"
     jdk: oraclejdk8
-  - env: SBT_VERSION="1.2.6"
+  - env: SBT_VERSION="1.2.8"
     jdk: openjdk11
     dist: xenial
 script:
