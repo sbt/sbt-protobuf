@@ -4,11 +4,10 @@ dist: trusty
 matrix:
   include:
   - env: SBT_VERSION="0.13.18"
-    jdk: openjdk7
-  - env: SBT_VERSION="1.0.4"
-    jdk: oraclejdk8
-  - env: SBT_VERSION="1.1.0"
-    jdk: oraclejdk8
+    jdk: openjdk8
+  - env: SBT_VERSION="1.2.8"
+    jdk: openjdk8
+    dist: xenial
   - env: SBT_VERSION="1.2.8"
     jdk: openjdk11
     dist: xenial
