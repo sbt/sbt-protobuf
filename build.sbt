@@ -8,7 +8,7 @@ scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args"
 
 scalacOptions in (Compile, doc) ++= {
   val tagOrBranch = if(isSnapshot.value) {
-    sys.process.Process("git rev-parse HEAD").lines_!.head
+    sys.process.Process("git rev-parse HEAD").lineStream_!.head
   } else {
     "v" + version.value
   }
