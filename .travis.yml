@@ -8,7 +8,7 @@ matrix:
   - env: SBT_VERSION="1.2.8"
     jdk: openjdk8
     dist: xenial
-  - env: SBT_VERSION="1.3.0-RC2"
+  - env: SBT_VERSION="1.3.0-RC3"
     jdk: openjdk8
     dist: xenial
   - env: SBT_VERSION="1.2.8"
