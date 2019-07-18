@@ -13,7 +13,7 @@ $ exists target/scala-2.10/classes/test/Test2.class
 -$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test2.java
 
 > compile
-> ++ 2.11.11
+> ++ 2.11.12
 > compile
 $ exists target/scala-2.11/src_managed/main/compiled_protobuf/test/Test2.java
 

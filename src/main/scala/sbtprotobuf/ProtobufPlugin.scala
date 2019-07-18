@@ -52,7 +52,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       val protoc = protobufProtoc.value
       args => Process(protoc, args) ! s.log
     },
-    version := "3.7.1",
+    version := "3.9.0",
 
     protobufGeneratedTargets := Nil,
     protobufGeneratedTargets += Tuple2((javaSource in ProtobufConfig).value, "*.java"), // add javaSource to the list of patterns

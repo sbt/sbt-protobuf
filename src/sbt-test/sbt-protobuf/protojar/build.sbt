@@ -2,12 +2,12 @@ enablePlugins(ProtobufPlugin)
 
 version := "0.1.0-SNAPSHOT"
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.10.7"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
 
 protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v370" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v390" +: args.toArray)
 }
 
 addArtifact(artifact in (ProtobufConfig, protobufPackage), protobufPackage in ProtobufConfig)

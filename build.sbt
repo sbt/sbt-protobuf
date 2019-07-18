@@ -33,7 +33,7 @@ bintrayReleaseOnPublish := false
 scriptedBufferLog := false
 
 scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
-scriptedLaunchOpts += s"-Dprotoc-jar.version=3.7.1"
+scriptedLaunchOpts += s"-Dprotoc-jar.version=3.8.0"
 
 crossSbtVersions := Seq("0.13.18", "1.2.8")
 

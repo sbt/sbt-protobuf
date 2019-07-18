@@ -1,5 +1,5 @@
 val commonSettings = Seq(
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.11.12",
   protobufRunProtoc in ProtobufConfig := { args =>
     com.github.os72.protocjar.Protoc.runProtoc("-v370" +: args.toArray)
   }

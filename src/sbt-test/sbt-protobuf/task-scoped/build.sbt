@@ -1,8 +1,8 @@
 import sbtprotobuf.ProtobufTestPlugin.{Keys => PBT}
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.10.7"
 
-crossScalaVersions += "2.11.11"
+crossScalaVersions += "2.11.12"
 
 enablePlugins(ProtobufPlugin, ProtobufTestPlugin)
 
@@ -13,7 +13,7 @@ libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in Pro
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.ProtobufConfig).value % PBT.ProtobufConfig.name
 
 protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v370" +: args.toArray)
+  com.github.os72.protocjar.Protoc.runProtoc("-v390" +: args.toArray)
 }
 
 PBT.protobufRunProtoc in PBT.ProtobufConfig := (protobufRunProtoc in ProtobufConfig).value
