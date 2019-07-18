@@ -1,19 +1,16 @@
 language: scala
 sudo: false
-dist: trusty
+dist: xenial
 matrix:
   include:
   - env: SBT_VERSION="0.13.18"
     jdk: openjdk8
   - env: SBT_VERSION="1.2.8"
     jdk: openjdk8
-    dist: xenial
   - env: SBT_VERSION="1.3.0-RC3"
     jdk: openjdk8
-    dist: xenial
   - env: SBT_VERSION="1.2.8"
     jdk: openjdk11
-    dist: xenial
 script:
 - sbt "^^ ${SBT_VERSION}" test scripted
 cache:
