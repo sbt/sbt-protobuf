@@ -35,6 +35,7 @@ scriptedBufferLog := false
 scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
 scriptedLaunchOpts += s"-Dprotoc-jar.version=3.8.0"
 
+// Don't update to 1.3.0 https://github.com/sbt/sbt/issues/5049
 crossSbtVersions := Seq("0.13.18", "1.2.8")
 
 enablePlugins(SbtPlugin)
