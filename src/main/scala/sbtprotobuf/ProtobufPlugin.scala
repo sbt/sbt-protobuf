@@ -4,6 +4,7 @@ import sbt._
 import Keys._
 import sbt.Defaults.{collectFiles, packageTaskSettings}
 import java.io.File
+import com.github.os72.protocjar
 
 object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
 
@@ -22,15 +23,16 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     @deprecated("will be removed. use ProtobufConfig", "0.6.2")
     val protobufConfig = ProtobufConfig
 
-    val protobufIncludePaths = TaskKey[Seq[File]]("protobuf-include-paths", "The paths that contain *.proto dependencies.")
-    val protobufProtoc = SettingKey[String]("protobuf-protoc", "The path+name of the protoc executable.")
-    val protobufRunProtoc = TaskKey[Seq[String] => Int]("protobuf-run-protoc", "A function that executes the protobuf compiler with the given arguments, returning the exit code of the compilation run.")
-    val protobufExternalIncludePath = SettingKey[File]("protobuf-external-include-path", "The path to which protobuf:libraryDependencies are extracted and which is used as protobuf:includePath for protoc")
-    val protobufGeneratedTargets = SettingKey[Seq[(File,String)]]("protobuf-generated-targets", "Targets for protoc: target directory and glob for generated source files")
-    val protobufGenerate = TaskKey[Seq[File]]("protobuf-generate", "Compile the protobuf sources.")
-    val protobufUnpackDependencies = TaskKey[UnpackedDependencies]("protobuf-unpack-dependencies", "Unpack dependencies.")
-    val protobufProtocOptions = SettingKey[Seq[String]]("protobuf-protoc-options", "Additional options to be passed to protoc")
-    val protobufPackage = TaskKey[File]("protobufPackage", "Produces a proto artifact, such as a jar containing .proto files")
+    val protobufIncludePaths = taskKey[Seq[File]]("The paths that contain *.proto dependencies.")
+    val protobufUseSystemProtoc = settingKey[Boolean]("Use the protoc installed on the machine.")
+    val protobufProtoc = settingKey[String]("The path+name of the protoc executable if protobufUseSystemProtoc is enabled.")
+    val protobufRunProtoc = taskKey[Seq[String] => Int]("A function that executes the protobuf compiler with the given arguments, returning the exit code of the compilation run.")
+    val protobufExternalIncludePath = settingKey[File]("The path to which protobuf:libraryDependencies are extracted and which is used as protobuf:includePath for protoc")
+    val protobufGeneratedTargets = settingKey[Seq[(File,String)]]("Targets for protoc: target directory and glob for generated source files")
+    val protobufGenerate = taskKey[Seq[File]]("Compile the protobuf sources.")
+    val protobufUnpackDependencies = taskKey[UnpackedDependencies]("Unpack dependencies.")
+    val protobufProtocOptions = settingKey[Seq[String]]("Additional options to be passed to protoc")
+    val protobufPackage = taskKey[File]("Produces a proto artifact, such as a jar containing .proto files")
 
     @deprecated("will be removed. use enablePlugins(ProtobufPlugin)", "0.6.0")
     def protobufSettings = self.projectSettings
@@ -39,6 +41,13 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   import Keys._
 
   override def projectConfigurations: Seq[Configuration] = ProtobufConfig :: Nil
+
+  // global scoping can be used to provide the default values
+  override lazy val globalSettings: Seq[Setting[_]] = Seq(
+    protobufUseSystemProtoc := false,
+    protobufGeneratedTargets := Nil,
+    protobufProtocOptions := Nil
+  )
 
   override lazy val projectSettings: Seq[Setting[_]] = inConfig(ProtobufConfig)(Seq[Setting[_]](
     sourceDirectory := { (sourceDirectory in configuration).value / "protobuf" },
@@ -49,15 +58,19 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufProtoc := "protoc",
     protobufRunProtoc := {
       val s = streams.value
+      val use = protobufUseSystemProtoc.value
       val protoc = protobufProtoc.value
-      args => Process(protoc, args) ! s.log
+      val v = version.value
+      if (use) {
+        args => Process(protoc, args) ! s.log
+      } else {
+        args => protocjar.Protoc.runProtoc(s"-v:com.google.protobuf:protoc:$v" +: args.toArray)
+      }
     },
     version := "3.9.0",
 
-    protobufGeneratedTargets := Nil,
     protobufGeneratedTargets += Tuple2((javaSource in ProtobufConfig).value, "*.java"), // add javaSource to the list of patterns
 
-    protobufProtocOptions := Nil,
     protobufProtocOptions ++= { // if a java target is provided, add java generation option
       (protobufGeneratedTargets in ProtobufConfig).value.find(_._2.endsWith(".java")) match {
         case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.getCanonicalPath))

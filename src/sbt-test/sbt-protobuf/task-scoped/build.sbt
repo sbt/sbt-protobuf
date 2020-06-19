@@ -12,10 +12,6 @@ libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in Pro
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.ProtobufConfig).value % PBT.ProtobufConfig.name
 
-protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v390" +: args.toArray)
-}
-
 PBT.protobufRunProtoc in PBT.ProtobufConfig := (protobufRunProtoc in ProtobufConfig).value
 
 excludeFilter in ProtobufConfig := "test1.proto"
