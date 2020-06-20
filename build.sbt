@@ -1,56 +1,49 @@
 import sbtrelease.ReleaseStateTransformations._
 
-organization := "com.github.gseitz"
+ThisBuild / organization := "com.github.gseitz"
 
-name := "sbt-protobuf"
+lazy val protocJar = "com.github.os72" % "protoc-jar" % "3.11.4"
 
-scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
+lazy val root = (project in file("."))
+  .enablePlugins(SbtPlugin)
+  .settings(nocomma {
+    name := "sbt-protobuf"
 
-scalacOptions in (Compile, doc) ++= {
-  val tagOrBranch = if(isSnapshot.value) {
-    sys.process.Process("git rev-parse HEAD").lineStream_!.head
-  } else {
-    "v" + version.value
-  }
-  Seq(
-    "-sourcepath", baseDirectory.value.getAbsolutePath,
-    "-doc-source-url", "https://github.com/sbt/sbt-protobuf/blob/" + tagOrBranch + "€{FILE_PATH}.scala"
-  )
-}
+    libraryDependencies += protocJar
+    scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
+    scalacOptions in (Compile, doc) ++= {
+      val tagOrBranch = if(isSnapshot.value) {
+        sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      } else {
+        "v" + version.value
+      }
+      Seq(
+        "-sourcepath", baseDirectory.value.getAbsolutePath,
+        "-doc-source-url", "https://github.com/sbt/sbt-protobuf/blob/" + tagOrBranch + "€{FILE_PATH}.scala"
+      )
+    }
+    publishMavenStyle := false
+    bintrayOrganization := Some("sbt")
+    bintrayRepository := "sbt-plugin-releases"
+    bintrayPackage := "sbt-protobuf"
+    bintrayReleaseOnPublish := false
+    scriptedBufferLog := false
+    scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
 
-sbtPlugin := true
-
-publishMavenStyle := false
-
-bintrayOrganization := Some("sbt")
-
-bintrayRepository := "sbt-plugin-releases"
-
-bintrayPackage := "sbt-protobuf"
-
-bintrayReleaseOnPublish := false
-
-scriptedBufferLog := false
-
-scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
-scriptedLaunchOpts += s"-Dprotoc-jar.version=3.8.0"
-
-// Don't update to 1.3.0 https://github.com/sbt/sbt/issues/5049
-crossSbtVersions := Seq("0.13.18", "1.2.8")
-
-enablePlugins(SbtPlugin)
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  releaseStepCommandAndRemaining("^ test"),
-  releaseStepCommandAndRemaining("^ scripted"),
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("^ publish"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
+    // Don't update to 1.3.0 https://github.com/sbt/sbt/issues/5049
+    crossSbtVersions := Seq("0.13.18", "1.2.8")
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      releaseStepCommandAndRemaining("^ test"),
+      releaseStepCommandAndRemaining("^ scripted"),
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("^ publish"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
+  })

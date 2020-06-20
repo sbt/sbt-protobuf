@@ -6,10 +6,6 @@ crossScalaVersions += "2.11.12"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
 
-protobufRunProtoc in ProtobufConfig := { args =>
-  com.github.os72.protocjar.Protoc.runProtoc("-v390" +: args.toArray)
-}
-
 excludeFilter in ProtobufConfig := "test1.proto"
 
 unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value

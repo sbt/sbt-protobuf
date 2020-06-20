@@ -5,5 +5,3 @@
                                   |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
   else addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % pluginVersion)
 }
-
-libraryDependencies += "com.github.os72" % "protoc-jar" % System.getProperty("protoc-jar.version")
