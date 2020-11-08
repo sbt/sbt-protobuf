@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+  push:
+  schedule:
+  - cron: '0 5 * * 1'
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - java: 8
+            sbt_version: "0.13.18"
+            os: ubuntu-latest
+          - java: 8
+            sbt_version: "1.2.8"
+            os: ubuntu-latest
+          - java: 8
+            os: ubuntu-latest
+          - java: 8
+            os: windows-latest
+          - java: 11
+            os: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: olafurpg/setup-scala@v10
+      with:
+        java-version: "adopt@1.${{ matrix.java }}"
+    - uses: coursier/cache-action@v5
+    - shell: bash
+      run: sbt -v $(if [[ "${{matrix.sbt_version}}" != "" ]] ; then echo "^^${{matrix.sbt_version}}" ; fi) test scripted
