@@ -11,7 +11,7 @@ lazy val root = (project in file("."))
 
     libraryDependencies += protocJar
     scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
-    scalacOptions in (Compile, doc) ++= {
+    (Compile / doc / scalacOptions) ++= {
       val tagOrBranch = if(isSnapshot.value) {
         sys.process.Process("git rev-parse HEAD").lineStream_!.head
       } else {
