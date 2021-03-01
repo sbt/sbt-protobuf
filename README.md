@@ -1,7 +1,6 @@
 # sbt-protobuf
 A plugin for sbt that transforms `*.proto` files into gazillion-loc Java source files, and potentially to other languages too.
 
-[ ![Download](https://api.bintray.com/packages/sbt/sbt-plugin-releases/sbt-protobuf/images/download.svg) ](https://bintray.com/sbt/sbt-plugin-releases/sbt-protobuf/_latestVersion)
 
 ## Usage
 
