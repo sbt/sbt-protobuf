@@ -36,5 +36,5 @@ lazy val root = (project in file("."))
     scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
 
     // Don't update to 1.3.0 https://github.com/sbt/sbt/issues/5049
-    crossSbtVersions := Seq("0.13.18", "1.2.8")
+    crossSbtVersions := Seq("1.2.8")
   })
