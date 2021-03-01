@@ -31,3 +31,5 @@ jobs:
     - uses: coursier/cache-action@v5
     - shell: bash
       run: sbt -v $(if [[ "${{matrix.sbt_version}}" != "" ]] ; then echo "^^${{matrix.sbt_version}}" ; fi) test scripted
+    - shell: bash
+      run: rm -rf "$HOME/.ivy2/local" || true
