@@ -3,5 +3,5 @@
   if(pluginVersion == null)
     throw new RuntimeException("""|The system property 'plugin.version' is not defined.
                                  |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
-  else addSbtPlugin("com.github.gseitz" % "sbt-protobuf" % pluginVersion)
+  else addSbtPlugin("com.github.sbt" % "sbt-protobuf" % pluginVersion)
 }
