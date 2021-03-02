@@ -50,10 +50,10 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = inConfig(ProtobufConfig)(Seq[Setting[_]](
-    sourceDirectory := { (sourceDirectory in configuration).value / "protobuf" },
+    sourceDirectory := { (configuration / sourceDirectory).value / "protobuf" },
     sourceDirectories := (sourceDirectory.value :: Nil),
     includeFilter := "*.proto",
-    javaSource := { (sourceManaged in configuration).value / "compiled_protobuf" },
+    javaSource := { (configuration / sourceManaged).value / "compiled_protobuf" },
     protobufExternalIncludePath := (target.value / "protobuf_external"),
     protobufProtoc := "protoc",
     protobufRunProtoc := {
@@ -69,10 +69,10 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     },
     version := "3.9.0",
 
-    protobufGeneratedTargets += Tuple2((javaSource in ProtobufConfig).value, "*.java"), // add javaSource to the list of patterns
+    protobufGeneratedTargets += Tuple2((ProtobufConfig / javaSource).value, "*.java"), // add javaSource to the list of patterns
 
     protobufProtocOptions ++= { // if a java target is provided, add java generation option
-      (protobufGeneratedTargets in ProtobufConfig).value.find(_._2.endsWith(".java")) match {
+      (ProtobufConfig / protobufGeneratedTargets).value.find(_._2.endsWith(".java")) match {
         case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.getCanonicalPath))
         case None => Nil
       }
@@ -84,7 +84,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
 
     protobufUnpackDependencies := unpackDependenciesTask.value,
 
-    protobufIncludePaths := ((sourceDirectory in ProtobufConfig).value :: Nil),
+    protobufIncludePaths := ((ProtobufConfig / sourceDirectory).value :: Nil),
     protobufIncludePaths += protobufExternalIncludePath.value,
 
     protobufGenerate := sourceGeneratorTask.dependsOn(protobufUnpackDependencies).value
@@ -93,11 +93,11 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     packageTaskSettings(protobufPackage, packageProtoMappings)
   ) ++ Seq[Setting[_]](
     watchSourcesSetting,
-    sourceGenerators in configuration += (protobufGenerate in ProtobufConfig).taskValue,
-    cleanFiles ++= (protobufGeneratedTargets in ProtobufConfig).value.map{_._1},
-    cleanFiles += (protobufExternalIncludePath in ProtobufConfig).value,
-    managedSourceDirectories in configuration ++= (protobufGeneratedTargets in ProtobufConfig).value.map{_._1},
-    libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value),
+    configuration / sourceGenerators += (ProtobufConfig / protobufGenerate).taskValue,
+    cleanFiles ++= (ProtobufConfig / protobufGeneratedTargets).value.map{_._1},
+    cleanFiles += (ProtobufConfig / protobufExternalIncludePath).value,
+    configuration / managedSourceDirectories ++= (ProtobufConfig / protobufGeneratedTargets).value.map{_._1},
+    libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value),
     ivyConfigurations += ProtobufConfig,
     setProtoArtifact
   )
@@ -152,14 +152,14 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   private[this] def sourceGeneratorTask =
     Def.task {
       val out     = streams.value
-      val schemas = collectFiles(sourceDirectories in ProtobufConfig, includeFilter in ProtobufConfig, excludeFilter in ProtobufConfig)
+      val schemas = collectFiles(ProtobufConfig / sourceDirectories, ProtobufConfig / includeFilter, ProtobufConfig / excludeFilter)
         .value.toSet[File].map(_.getAbsoluteFile)
       // Include Scala binary version like "_2.11" for cross building.
       val cacheFile = out.cacheDirectory / s"protobuf_${scalaBinaryVersion.value}"
       val runProtoc = protobufRunProtoc.value
-      val includePaths = (protobufIncludePaths in ProtobufConfig).value
-      val options = (protobufProtocOptions in ProtobufConfig).value
-      val targets = (protobufGeneratedTargets in ProtobufConfig).value
+      val includePaths = (ProtobufConfig / protobufIncludePaths).value
+      val options = (ProtobufConfig / protobufProtocOptions).value
+      val targets = (ProtobufConfig / protobufGeneratedTargets).value
       val cachedCompile = FileFunction.cached(cacheFile, inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
         compile(
           protocCommand = runProtoc,
@@ -173,13 +173,13 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     }
 
   private[this] def unpackDependenciesTask = Def.task {
-    val extractTarget = (protobufExternalIncludePath in ProtobufConfig).value
-    val extractedFiles = unpack((managedClasspath in ProtobufConfig).value.map(_.data), extractTarget, streams.value.log)
+    val extractTarget = (ProtobufConfig / protobufExternalIncludePath).value
+    val extractedFiles = unpack((ProtobufConfig / managedClasspath).value.map(_.data), extractTarget, streams.value.log)
     UnpackedDependencies(extractTarget, extractedFiles)
   }
 
   private[this] def packageProtoMappings = Def.task {
-    collectFiles(sourceDirectories in ProtobufConfig, includeFilter in ProtobufConfig, excludeFilter in ProtobufConfig)
+    collectFiles(ProtobufConfig / sourceDirectories, ProtobufConfig / includeFilter, ProtobufConfig / excludeFilter)
       .value.map(f => (f, f.getName))
   }
 

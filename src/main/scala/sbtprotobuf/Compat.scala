@@ -9,15 +9,15 @@ private[sbtprotobuf] trait Compat { self: ScopedProtobufPlugin =>
 
   protected[this] val Process = scala.sys.process.Process
 
-  protected[this] val setProtoArtifact = artifact in (ProtobufConfig, protobufPackage) := {
-    val previous: Artifact = (artifact in (ProtobufConfig, protobufPackage)).value
+  protected[this] val setProtoArtifact = (ProtobufConfig / protobufPackage / artifact) := {
+    val previous: Artifact = (ProtobufConfig / protobufPackage / artifact).value
     previous
       .withConfigurations(Vector(ProtobufConfig))
       .withClassifier(Some(protoClassifier))
   }
 
   protected[this] val watchSourcesSetting =
-    watchSources += new Source((sourceDirectory in ProtobufConfig).value, "*.proto", AllPassFilter)
+    watchSources += new Source((ProtobufConfig / sourceDirectory).value, "*.proto", AllPassFilter)
 
   protected[this] lazy val ProtobufConfig = Configuration.of("ProtobufConfig", "protobuf" + configurationPostfix)
 }
