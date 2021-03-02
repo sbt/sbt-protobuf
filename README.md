@@ -52,27 +52,27 @@ Sometimes it's desirable to compile external proto files (eg. because the librar
 This can be achieved by adding the following setting:
 
 ```scala
-sourceDirectories in ProtobufConfig += (protobufExternalIncludePath in ProtobufConfig).value
+ProtobufConfig / sourceDirectories += (ProtobufConfig / protobufExternalIncludePath).value
 ```
 
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
 ```scala
-unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value
+Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
 ```
 
 Alternatively, `*.proto` files can be packaged in a separate jar file in the `protobuf` configuration with a `proto` classifier:
 
 ```scala
-addArtifact(artifact in (ProtobufConfig, protobufPackage), protobufPackage in ProtobufConfig)
+addArtifact(artifact in (ProtobufConfig, protobufPackage), ProtobufConfig / protobufPackage)
 ```
 
 ### Changing the location of the generated java files
 By default, the compiled proto files are created in `<project-dir>/target/<scala-version>/src_managed/main/compiled_protobuf`. Changing the location to `<project-dir>/src/generated` can be done by adding the following setting to your build definition:
 
 ```scala
-javaSource in ProtobufConfig := ((sourceDirectory in Compile).value / "generated")
+ProtobufConfig / javaSource := ((Compile / sourceDirectory).value / "generated")
 ```
 
 **WARNING:** The content of this directory is **removed** by the `clean` task. Don't set it to a directory containing files you hold dear to your heart.
@@ -88,7 +88,7 @@ as ```compileOrder := CompileOrder.JavaThenScala```,the default is ```mixed```.
 All options passed to `protoc` are configured via the `protobufProtocOptions`. To add options, for example to run a custom plugin, add them to this setting key. For example:
 
 ```scala
-protobufProtocOptions in ProtobufConfig ++= Seq("--custom-option")
+ProtobufConfig / protobufProtocOptions ++= Seq("--custom-option")
 ```
 
 ### Additional target directories
@@ -97,8 +97,8 @@ In case only Java files are generated, this setting doesn't need to change, sinc
 In case other types of source files are generated, for example by using a custom plugin (see previous section), the corresponding target directories and source file globs must be configured by adding them to this setting. For example:
 
 ```scala
-protobufGeneratedTargets in ProtobufConfig ++= {
-  Seq(((sourceDirectory in Compile).value / "generated" / "scala", "*.scala"))
+ProtobufConfig / protobufGeneratedTargets ++= {
+  Seq(((Compile / sourceDirectory).value / "generated" / "scala", "*.scala"))
 }
 ```
 
@@ -166,7 +166,7 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr>
     <td>protobufGeneratedTargets</td>
     <td></td>
-    <td><code>(file(</code>java source directory based on <code>javaSource in ProtobufConfig</code>), <code>"*.java")</code></td>
+    <td><code>(file(</code>java source directory based on <code>ProtobufConfig / javaSource</code>), <code>"*.java")</code></td>
     <td>the list of target directories and source file globs for the generated files</td>
 </tr>
 </table>
