@@ -4,16 +4,16 @@ version := "0.1.0-SNAPSHOT"
 
 scalaVersion := "2.10.7"
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value % ProtobufConfig.name
 
-protobufRunProtoc in ProtobufConfig := { args =>
+ProtobufConfig / protobufRunProtoc := { args =>
   com.github.os72.protocjar.Protoc.runProtoc("-v390" +: args.toArray)
 }
 
-addArtifact(artifact in (ProtobufConfig, protobufPackage), protobufPackage in ProtobufConfig)
+addArtifact(ProtobufConfig / protobufPackage / artifact, ProtobufConfig / protobufPackage)
 
 TaskKey[Unit]("checkJar") := {
-  val jar = (protobufPackage in ProtobufConfig).value
+  val jar = (ProtobufConfig / protobufPackage).value
   IO.withTemporaryDirectory{ dir =>
     val files = IO.unzip(jar, dir)
     val expect = Set(dir / "test1.proto", dir / "META-INF" / "MANIFEST.MF")

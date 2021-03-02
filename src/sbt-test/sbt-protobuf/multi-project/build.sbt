@@ -8,5 +8,5 @@ val foo = project.settings(
 
 val bar = project.settings(
   commonSettings,
-  protobufIncludePaths in ProtobufConfig += (sourceDirectory in ProtobufConfig in foo).value
+  (ProtobufConfig / protobufIncludePaths) += (foo / ProtobufConfig / sourceDirectory).value
 ).dependsOn(foo).enablePlugins(ProtobufPlugin)

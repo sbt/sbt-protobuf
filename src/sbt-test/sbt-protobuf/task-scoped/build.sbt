@@ -6,25 +6,25 @@ crossScalaVersions += "2.11.12"
 
 enablePlugins(ProtobufPlugin, ProtobufTestPlugin)
 
-version in PBT.ProtobufConfig := (version in ProtobufConfig).value
+(PBT.ProtobufConfig / version) := (ProtobufConfig / version).value
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in ProtobufConfig).value % ProtobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value % ProtobufConfig.name
 
-libraryDependencies += "com.google.protobuf" % "protobuf-java" % (version in PBT.ProtobufConfig).value % PBT.ProtobufConfig.name
+libraryDependencies += "com.google.protobuf" % "protobuf-java" % (PBT.ProtobufConfig / version).value % PBT.ProtobufConfig.name
 
-PBT.protobufRunProtoc in PBT.ProtobufConfig := (protobufRunProtoc in ProtobufConfig).value
+(PBT.ProtobufConfig / PBT.protobufRunProtoc) := (ProtobufConfig / protobufRunProtoc).value
 
-excludeFilter in ProtobufConfig := "test1.proto"
+ProtobufConfig / excludeFilter := "test1.proto"
 
-excludeFilter in PBT.ProtobufConfig := "test3.proto"
+PBT.ProtobufConfig / excludeFilter := "test3.proto"
 
-unmanagedResourceDirectories in Compile += (sourceDirectory in ProtobufConfig).value
+(Compile / unmanagedResourceDirectories) += (ProtobufConfig / sourceDirectory).value
 
-unmanagedResourceDirectories in Test += (sourceDirectory in PBT.ProtobufConfig).value
+(Test / unmanagedResourceDirectories) += (PBT.ProtobufConfig / sourceDirectory).value
 
 TaskKey[Unit]("checkJar") := {
-  val compileJar = (packageBin in Compile).value
-  val testJar = (packageBin in Test).value
+  val compileJar = (Compile / packageBin).value
+  val testJar = (Test / packageBin).value
 
   IO.withTemporaryDirectory{ dir =>
     val files = IO.unzip(compileJar, dir, "*.proto")
@@ -37,4 +37,4 @@ TaskKey[Unit]("checkJar") := {
 }
 
 // https://github.com/sbt/sbt-protobuf/issues/37
-mainClass in compile := Some("whatever")
+compile / mainClass := Some("whatever")
