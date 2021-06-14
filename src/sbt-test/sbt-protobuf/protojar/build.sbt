@@ -2,6 +2,8 @@ enablePlugins(ProtobufPlugin)
 
 version := "0.1.0-SNAPSHOT"
 
+name := "protojar"
+
 scalaVersion := "2.10.7"
 
 libraryDependencies += "com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value % ProtobufConfig.name
