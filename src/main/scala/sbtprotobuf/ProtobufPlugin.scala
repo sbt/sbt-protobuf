@@ -67,7 +67,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
         args => protocjar.Protoc.runProtoc(s"-v:com.google.protobuf:protoc:$v" +: args.toArray)
       }
     },
-    version := "3.15.5",
+    version := "3.17.3",
 
     protobufGeneratedTargets += Tuple2((ProtobufConfig / javaSource).value, "*.java"), // add javaSource to the list of patterns
 
