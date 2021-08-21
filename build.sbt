@@ -1,12 +1,41 @@
 ThisBuild / organization := "com.github.sbt"
 
 lazy val protocJar = "com.github.os72" % "protoc-jar" % "3.11.4"
+lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.17.3" % "runtime" // for scala-steward
 
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(nocomma {
     name := "sbt-protobuf"
-
+    libraryDependencies += protobuf
+    Compile / sourceGenerators += task {
+      val source = s"""package sbtprotobuf
+        |
+        |private[sbtprotobuf] object SbtProtobufBuildInfo {
+        |  def defaultProtobufVersion: String = "${protobuf.revision}"
+        |}
+        |""".stripMargin
+      val f = (Compile / sourceManaged).value / "sbtprotobuf" / "SbtProtobufBuildInfo.scala"
+      IO.write(f, source)
+      Seq(f)
+    }
+    pomPostProcess := { node =>
+      import scala.xml.{NodeSeq, Node}
+      val rule = new scala.xml.transform.RewriteRule {
+        override def transform(n: Node) = {
+          if (List(
+            n.label == "dependency",
+            (n \ "groupId").text == protobuf.organization,
+            (n \ "artifactId").text == protobuf.name,
+          ).forall(identity)) {
+            NodeSeq.Empty
+          } else {
+            n
+          }
+        }
+      }
+      new scala.xml.transform.RuleTransformer(rule).transform(node)(0)
+    }
     libraryDependencies += protocJar
     scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
     (Compile / doc / scalacOptions) ++= {
