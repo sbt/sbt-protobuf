@@ -198,5 +198,24 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 
 </table>
 
+## IntelliJ IDEA BSP bug
+IntelliJ has a [bug](https://youtrack.jetbrains.com/issue/SCL-19517) where it only recognizes generated sources if there is at least one Scala class in the same package - otherwise you'll see red squiggles. As a workaround, you can configure your project to add a private empty class, e.g. like this:
+```scala
+Compile / sourceGenerators += Def.task {
+  // adapt this for your build:
+  val protoPackage = "org.example.proto.foo"
+
+  val scalaFile = (Compile/sourceManaged).value / "_ONLY_FOR_INTELLIJ.scala"
+  
+  IO.write(scalaFile,
+    s"""package $protoPackage
+      |
+      |private class _ONLY_FOR_INTELLIJ
+      |""".stripMargin)
+
+  Seq(scalaFile)
+}.taskValue
+```
+
 ## Credits
 `sbt-protobuf` is based on [softprops/coffeescripted-sbt](https://github.com/softprops/coffeescripted-sbt) for the sbt-0.10 specific parts and [codahale/protobuf-sbt](https://github.com/codahale/protobuf-sbt) for the protobuf specifics.
