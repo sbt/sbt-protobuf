@@ -12,7 +12,7 @@ addSbtPlugin("com.github.sbt" % "sbt-protobuf" % "0.7.0")
 ```
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
-The version for `protobuf-java` can be controlled by the setting `version in ProtobufConfig` (set to `3.9.0` by default).
+The version for `protobuf-java` can be controlled by the setting `ProtobufConfig / version` (set to `3.9.0` by default).
 
 ### Importing sbt-protobuf settings
 To actually "activate" the plugin, its settings need to be included in the build.
@@ -65,7 +65,7 @@ Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).val
 Alternatively, `*.proto` files can be packaged in a separate jar file in the `protobuf` configuration with a `proto` classifier:
 
 ```scala
-addArtifact(artifact in (ProtobufConfig, protobufPackage), ProtobufConfig / protobufPackage)
+addArtifact(ProtobufConfig / protobufPackage / artifact, ProtobufConfig / protobufPackage)
 ```
 
 ### Changing the location of the generated java files
@@ -92,8 +92,8 @@ ProtobufConfig / protobufProtocOptions ++= Seq("--custom-option")
 ```
 
 ### Additional target directories
-The source directories where the files are generated, and the globs used to identify the generated files, are configured by `protobufGeneratedTargets in ProtobufConfig`.
-In case only Java files are generated, this setting doesn't need to change, since it automatically inherits the value of `javaSource in ProtobufConfig`, paired with the glob `*.java`.
+The source directories where the files are generated, and the globs used to identify the generated files, are configured by `ProtobufConfig / protobufGeneratedTargets`.
+In case only Java files are generated, this setting doesn't need to change, since it automatically inherits the value of `ProtobufConfig / javaSource`, paired with the glob `*.java`.
 In case other types of source files are generated, for example by using a custom plugin (see previous section), the corresponding target directories and source file globs must be configured by adding them to this setting. For example:
 
 ```scala
