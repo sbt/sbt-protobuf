@@ -1,7 +1,7 @@
 ThisBuild / organization := "com.github.sbt"
 
 lazy val protocJar = "com.github.os72" % "protoc-jar" % "3.11.4"
-lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.19.4" % "runtime" // for scala-steward
+lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.20.0" % "runtime" // for scala-steward
 
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
