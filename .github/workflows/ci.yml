@@ -13,9 +13,6 @@ jobs:
       matrix:
         include:
           - java: 8
-            sbt_version: "1.2.8"
-            os: ubuntu-latest
-          - java: 8
             os: ubuntu-latest
           - java: 8
             os: windows-latest
