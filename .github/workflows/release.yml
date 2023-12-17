@@ -14,7 +14,7 @@ jobs:
         with:
           java-version: 8
           distribution: adopt
-      - run: sbt ci-release
+      - run: sbt -Dsbt.io.jdktimestamps=true ci-release
         if: ${{ github.repository_owner == 'sbt' }}
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
