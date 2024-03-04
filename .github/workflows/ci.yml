@@ -28,7 +28,7 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         distribution: temurin
-    - uses: coursier/cache-action@v6
+        cache: sbt
     - shell: bash
       run: sbt -v $(if [[ "${{matrix.sbt_version}}" != "" ]] ; then echo "^^${{matrix.sbt_version}}" ; fi) test scripted
     - shell: bash
