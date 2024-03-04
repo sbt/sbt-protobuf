@@ -169,6 +169,12 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td><code>(file(</code>java source directory based on <code>ProtobufConfig / javaSource</code>), <code>"*.java")</code></td>
     <td>the list of target directories and source file globs for the generated files</td>
 </tr>
+<tr>
+    <td>protobufExcludeOutputs</td>
+    <td></td>
+    <td><code>Seq(Glob((ProtobufConfig / javaSource).value) / "com" / "google" / "protobuf" / "*.java")</code></td>
+    <td>the list of glob expressions to exclude from the generated files</td>
+</tr>
 </table>
 
 ## Tasks

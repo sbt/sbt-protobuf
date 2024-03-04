@@ -30,6 +30,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     val protobufExternalIncludePath = settingKey[File]("The path to which protobuf:libraryDependencies are extracted and which is used as protobuf:includePath for protoc")
     val protobufGeneratedTargets = settingKey[Seq[(File,String)]]("Targets for protoc: target directory and glob for generated source files")
     val protobufGenerate = taskKey[Seq[File]]("Compile the protobuf sources.")
+    val protobufExcludeOutputs = taskKey[Seq[Glob]]("Glob expressions to exclude from the generated files.")
     val protobufUnpackDependencies = taskKey[UnpackedDependencies]("Unpack dependencies.")
     val protobufProtocOptions = settingKey[Seq[String]]("Additional options to be passed to protoc")
     val protobufPackage = taskKey[File]("Produces a proto artifact, such as a jar containing .proto files")
@@ -46,7 +47,8 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
     protobufUseSystemProtoc := false,
     protobufGeneratedTargets := Nil,
-    protobufProtocOptions := Nil
+    protobufProtocOptions := Nil,
+    protobufExcludeOutputs := Nil,
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = inConfig(ProtobufConfig)(Seq[Setting[_]](
@@ -87,8 +89,8 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufIncludePaths := ((ProtobufConfig / sourceDirectory).value :: Nil),
     protobufIncludePaths += protobufExternalIncludePath.value,
 
-    protobufGenerate := sourceGeneratorTask.dependsOn(protobufUnpackDependencies).value
-
+    protobufGenerate := sourceGeneratorTask.dependsOn(protobufUnpackDependencies).value,
+    protobufExcludeOutputs += Glob((ProtobufConfig / javaSource).value) / "com" / "google" / "protobuf" / "*.java",
   )) ++ inConfig(ProtobufConfig)(
     packageTaskSettings(protobufPackage, packageProtoMappings)
   ) ++ Seq[Setting[_]](
@@ -160,14 +162,17 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       val includePaths = (ProtobufConfig / protobufIncludePaths).value
       val options = (ProtobufConfig / protobufProtocOptions).value
       val targets = (ProtobufConfig / protobufGeneratedTargets).value
+      val excludeOutputs = (ProtobufConfig / protobufExcludeOutputs).value
       val cachedCompile = FileFunction.cached(cacheFile, inStyle = FilesInfo.lastModified, outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(
+        val r: Set[File] = compile(
           protocCommand = runProtoc,
           schemas = schemas,
           includePaths = includePaths,
           protocOptions = options,
           generatedTargets = targets,
           log = out.log)
+        if (excludeOutputs.isEmpty) r
+        else r.filter(x => !excludeOutputs.exists(g => g.matches(x.toPath())))
       }
       cachedCompile(schemas).toSeq
     }
