@@ -2,7 +2,7 @@ package sbtprotobuf
 
 import sbt._
 import Keys._
-import sbt.Defaults.{collectFiles, packageTaskSettings}
+import sbt.Defaults.packageTaskSettings
 import java.io.File
 import com.github.os72.protocjar
 
@@ -24,6 +24,9 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     val protobufConfig = ProtobufConfig
 
     val protobufIncludePaths = taskKey[Seq[File]]("The paths that contain *.proto dependencies.")
+    val protobufSources = taskKey[Seq[File]]("Protobuf files")
+    val protobufIncludeFilters = settingKey[Seq[Glob]]("Include filters")
+    val protobufExcludeFilters = settingKey[Seq[Glob]]("Exclude filters")
     val protobufUseSystemProtoc = settingKey[Boolean]("Use the protoc installed on the machine.")
     val protobufProtoc = settingKey[String]("The path+name of the protoc executable if protobufUseSystemProtoc is enabled.")
     val protobufRunProtoc = taskKey[Seq[String] => Int]("A function that executes the protobuf compiler with the given arguments, returning the exit code of the compilation run.")
@@ -46,13 +49,43 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
     protobufUseSystemProtoc := false,
     protobufGeneratedTargets := Nil,
-    protobufProtocOptions := Nil
+    protobufProtocOptions := Nil,
+    protobufIncludeFilters := Nil,
+    protobufExcludeFilters := Nil,
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = inConfig(ProtobufConfig)(Seq[Setting[_]](
     sourceDirectory := { (configuration / sourceDirectory).value / "protobuf" },
     sourceDirectories := (sourceDirectory.value :: Nil),
-    includeFilter := "*.proto",
+    protobufSources := {
+      val dirs = sourceDirectories.value
+      val includes = protobufIncludeFilters.value
+      val excludes = protobufExcludeFilters.value
+      dirs.flatMap { dir =>
+        val allFiles = (dir ** "*").get.map(_.toPath())
+        allFiles
+          .filter(x => includes.exists(_.matches(x)))
+          .filterNot(x => excludes.exists(_.matches(x)))
+          .map(_.toFile())
+      }
+    },
+    protobufIncludeFilters ++= {
+      val dirs = sourceDirectories.value
+      dirs.map(d => Glob(d.toPath()) / "**" / "*.proto")
+    },
+    protobufExcludeFilters ++= {
+      val dirs = sourceDirectories.value
+      val excludes = excludeFilter.value
+      excludes match {
+        case NothingFilter | HiddenFileFilter => Nil
+        case f: ExactFilter => dirs.map(d => Glob(d.toPath()) / f.matchName)
+        case filter => sys.error(s"unsupported excludeFilter $filter. migrate to ProtobufConfig / protobufExcludeFilters")
+      }
+    },
+    protobufExcludeFilters ++= {
+      val dirs = sourceDirectories.value
+      dirs.map(d => Glob(d.toPath()) / "google" / "protobuf" / "*.proto")
+    },
     javaSource := { (configuration / sourceManaged).value / "compiled_protobuf" },
     protobufExternalIncludePath := (target.value / "protobuf_external"),
     protobufProtoc := "protoc",
@@ -87,8 +120,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufIncludePaths := ((ProtobufConfig / sourceDirectory).value :: Nil),
     protobufIncludePaths += protobufExternalIncludePath.value,
 
-    protobufGenerate := sourceGeneratorTask.dependsOn(protobufUnpackDependencies).value
-
+    protobufGenerate := sourceGeneratorTask.dependsOn(protobufUnpackDependencies).value,
   )) ++ inConfig(ProtobufConfig)(
     packageTaskSettings(protobufPackage, packageProtoMappings)
   ) ++ Seq[Setting[_]](
@@ -112,7 +144,14 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       throw new RuntimeException("error occurred while compiling protobuf files: %s" format(e.getMessage), e)
     }
 
-  private[this] def compile(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], generatedTargets: Seq[(File, String)], log: Logger) = {
+  private[this] def compile(
+      protocCommand: Seq[String] => Int,
+      schemas: Set[File],
+      includePaths: Seq[File],
+      protocOptions: Seq[String],
+      generatedTargets: Seq[(File, String)],
+      log: Logger,
+  ) = {
     val generatedTargetDirs = generatedTargets.map(_._1)
     generatedTargetDirs.foreach{ targetDir =>
       IO.delete(targetDir)
@@ -120,7 +159,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     }
 
     if(!schemas.isEmpty){
-      log.info("Compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
+      log.info("compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
       log.debug("protoc options:")
       protocOptions.map("\t"+_).foreach(log.debug(_))
       schemas.foreach(schema => log.info("Compiling schema %s" format schema))
@@ -152,8 +191,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   private[this] def sourceGeneratorTask =
     Def.task {
       val out     = streams.value
-      val schemas = collectFiles(ProtobufConfig / sourceDirectories, ProtobufConfig / includeFilter, ProtobufConfig / excludeFilter)
-        .value.toSet[File].map(_.getAbsoluteFile)
+      val schemas = protobufSources.value.toSet[File].map(_.getAbsoluteFile)
       // Include Scala binary version like "_2.11" for cross building.
       val cacheFile = out.cacheDirectory / s"protobuf_${scalaBinaryVersion.value}"
       val runProtoc = protobufRunProtoc.value
@@ -178,9 +216,10 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     UnpackedDependencies(extractTarget, extractedFiles)
   }
 
-  private[this] def packageProtoMappings = Def.task {
-    collectFiles(ProtobufConfig / sourceDirectories, ProtobufConfig / includeFilter, ProtobufConfig / excludeFilter)
-      .value.map(f => (f, f.getName))
-  }
-
+  private[this] def packageProtoMappings =
+    Def.task {
+      protobufSources.value.map {
+        case x => (x, x.getName)
+      }
+    }
 }
