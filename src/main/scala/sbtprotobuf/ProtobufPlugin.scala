@@ -4,7 +4,7 @@ import sbt._
 import Keys._
 import sbt.Defaults.packageTaskSettings
 import java.io.File
-import com.github.os72.protocjar
+import SbtProtobuf._
 
 object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
 
@@ -13,6 +13,8 @@ object ProtobufPlugin extends ScopedProtobufPlugin(Compile) {
 }
 
 class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] val configurationPostfix: String = "") extends AutoPlugin with Compat { self =>
+  lazy val ProtobufConfig = Configuration.of("ProtobufConfig", "protobuf" + configurationPostfix)
+  lazy val ProtobufTool = config("protobuf-tool").hide
 
   override def requires = sbt.plugins.JvmPlugin
 
@@ -90,14 +92,17 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufExternalIncludePath := (target.value / "protobuf_external"),
     protobufProtoc := "protoc",
     protobufRunProtoc := {
-      val s = streams.value
-      val use = protobufUseSystemProtoc.value
-      val protoc = protobufProtoc.value
-      val v = version.value
-      if (use) {
-        args => Process(protoc, args) ! s.log
+      // keep this if-expression top-level for selective functor
+      if (protobufUseSystemProtoc.value) {
+        val s = streams.value
+        args => Process(protobufProtoc.value, args).!(s.log)
       } else {
-        args => protocjar.Protoc.runProtoc(s"-v:com.google.protobuf:protoc:$v" +: args.toArray)
+        val s = streams.value
+        val ur = update.value
+        val protoc = withFileCache(s.cacheDirectory.toPath()) { () =>
+          extractFile(ur, protocArtifactName)
+        }
+        args => Process(protoc.toAbsolutePath.toString, args).!(s.log)
       }
     },
     version := SbtProtobufBuildInfo.defaultProtobufVersion,
@@ -130,7 +135,8 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     cleanFiles += (ProtobufConfig / protobufExternalIncludePath).value,
     configuration / managedSourceDirectories ++= (ProtobufConfig / protobufGeneratedTargets).value.map{_._1},
     libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value),
-    ivyConfigurations += ProtobufConfig,
+    libraryDependencies += protocDependency((ProtobufConfig / version).value) % ProtobufTool,
+    ivyConfigurations ++= List(ProtobufConfig, ProtobufTool),
     setProtoArtifact
   )
 

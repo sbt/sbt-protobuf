@@ -1,6 +1,5 @@
 ThisBuild / organization := "com.github.sbt"
 
-lazy val protocJar = "com.github.os72" % "protoc-jar" % "3.11.4"
 lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % "runtime" // for scala-steward
 
 lazy val root = (project in file("."))
@@ -36,7 +35,6 @@ lazy val root = (project in file("."))
       }
       new scala.xml.transform.RuleTransformer(rule).transform(node)(0)
     }
-    libraryDependencies += protocJar
     scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
     (Compile / doc / scalacOptions) ++= {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
