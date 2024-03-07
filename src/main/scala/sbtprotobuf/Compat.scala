@@ -18,6 +18,4 @@ private[sbtprotobuf] trait Compat { self: ScopedProtobufPlugin =>
 
   protected[this] val watchSourcesSetting =
     watchSources += new Source((ProtobufConfig / sourceDirectory).value, "*.proto", AllPassFilter)
-
-  protected[this] lazy val ProtobufConfig = Configuration.of("ProtobufConfig", "protobuf" + configurationPostfix)
 }

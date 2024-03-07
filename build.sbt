@@ -1,7 +1,7 @@
 ThisBuild / organization := "com.github.sbt"
 
-lazy val protocJar = "com.github.os72" % "protoc-jar" % "3.11.4"
-lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % "runtime" // for scala-steward
+lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % Runtime // for scala-steward
+lazy val grpc = "io.grpc" % "protoc-gen-grpc-java" % "1.62.2" % Runtime // for scala-steward
 
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
@@ -13,6 +13,7 @@ lazy val root = (project in file("."))
         |
         |private[sbtprotobuf] object SbtProtobufBuildInfo {
         |  def defaultProtobufVersion: String = "${protobuf.revision}"
+        |  def defaultGrpcVersion: String = "${grpc.revision}"
         |}
         |""".stripMargin
       val f = (Compile / sourceManaged).value / "sbtprotobuf" / "SbtProtobufBuildInfo.scala"
@@ -36,7 +37,6 @@ lazy val root = (project in file("."))
       }
       new scala.xml.transform.RuleTransformer(rule).transform(node)(0)
     }
-    libraryDependencies += protocJar
     scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
     (Compile / doc / scalacOptions) ++= {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
@@ -63,5 +63,9 @@ lazy val root = (project in file("."))
     }
     scriptedBufferLog := false
     scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
-
+    (pluginCrossBuild / sbtVersion) := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.5.8"
+      }
+    }
   })
