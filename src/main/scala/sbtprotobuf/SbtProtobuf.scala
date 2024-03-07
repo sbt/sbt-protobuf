@@ -6,9 +6,10 @@ import sbt.librarymanagement.DependencyFilter
 
 object SbtProtobuf {
   val protocArtifactName = "protoc"
+  val protocGenGrpcJavaArtifactName = "protoc-gen-grpc-java"
 
   def protocDependency(v: String): ModuleID =
-    ("com.google.protobuf" % "protoc" % v)
+    ("com.google.protobuf" % protocArtifactName % v)
       .artifacts(Artifact(
         name = protocArtifactName,
         `type` = "exe",
@@ -16,13 +17,29 @@ object SbtProtobuf {
         classifier = detectClassifier,
       ))
 
+  def protocGenGrpcJavaDependency(v: String): ModuleID =
+    ("io.grpc" % protocGenGrpcJavaArtifactName % v)
+      .artifacts(Artifact(
+        name = protocGenGrpcJavaArtifactName,
+        `type` = "exe",
+        extension = "exe",
+        classifier = detectClassifier,
+      ))
+
   def detectClassifier: String = {
+    val x86_64 = "x86_64"
+    val arch = sys.props.get("os.arch") match {
+      case Some("aarch64") => "aarch_64"
+      case Some("amd64")   => x86_64
+      case Some(arch)      => arch
+      case _               => x86_64
+    }
     if (scala.util.Properties.isMac){
-      "osx-x86_64"
+      s"osx-$arch"
     } else if (scala.util.Properties.isWin){
-      "windows-x86_64"
+      s"windows-$arch"
     } else {
-      "linux-x86_64"
+      s"linux-$arch"
     }
   }
 

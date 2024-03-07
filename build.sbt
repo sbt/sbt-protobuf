@@ -1,6 +1,7 @@
 ThisBuild / organization := "com.github.sbt"
 
-lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % "runtime" // for scala-steward
+lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % Runtime // for scala-steward
+lazy val grpc = "io.grpc" % "protoc-gen-grpc-java" % "1.62.2" % Runtime // for scala-steward
 
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
@@ -12,6 +13,7 @@ lazy val root = (project in file("."))
         |
         |private[sbtprotobuf] object SbtProtobufBuildInfo {
         |  def defaultProtobufVersion: String = "${protobuf.revision}"
+        |  def defaultGrpcVersion: String = "${grpc.revision}"
         |}
         |""".stripMargin
       val f = (Compile / sourceManaged).value / "sbtprotobuf" / "SbtProtobufBuildInfo.scala"

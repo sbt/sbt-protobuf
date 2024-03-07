@@ -36,8 +36,10 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     val protobufGeneratedTargets = settingKey[Seq[(File,String)]]("Targets for protoc: target directory and glob for generated source files")
     val protobufGenerate = taskKey[Seq[File]]("Compile the protobuf sources.")
     val protobufUnpackDependencies = taskKey[UnpackedDependencies]("Unpack dependencies.")
-    val protobufProtocOptions = settingKey[Seq[String]]("Additional options to be passed to protoc")
+    val protobufProtocOptions = taskKey[Seq[String]]("Additional options to be passed to protoc")
     val protobufPackage = taskKey[File]("Produces a proto artifact, such as a jar containing .proto files")
+    val protobufGrpcEnabled = settingKey[Boolean]("Enable gRPC plugin")
+    val protobufGrpcVersion = settingKey[String]("gRPC version")
 
     @deprecated("will be removed. use enablePlugins(ProtobufPlugin)", "0.6.0")
     def protobufSettings = self.projectSettings
@@ -54,6 +56,8 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufProtocOptions := Nil,
     protobufIncludeFilters := Nil,
     protobufExcludeFilters := Nil,
+    protobufGrpcEnabled := false,
+    protobufGrpcVersion := SbtProtobufBuildInfo.defaultGrpcVersion,
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = inConfig(ProtobufConfig)(Seq[Setting[_]](
@@ -115,7 +119,21 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
         case None => Nil
       }
     },
-
+    protobufProtocOptions ++= {
+      if (protobufGrpcEnabled.value) {
+        val s = streams.value
+        val ur = update.value
+        val grpcCli = withFileCache(s.cacheDirectory.toPath()) { () =>
+          extractFile(ur, protocGenGrpcJavaArtifactName)
+        }
+        ((ProtobufConfig / protobufGeneratedTargets).value.find(_._2.endsWith(".java")) match {
+          case Some(targetForJava) => Seq("--java_rpc_out=%s".format(targetForJava._1.getCanonicalPath))
+          case None => Nil
+        }) ++ Seq(
+          s"--plugin=protoc-gen-java_rpc=${grpcCli}"
+        )
+      } else Nil
+    },
     managedClasspath := {
       Classpaths.managedJars(ProtobufConfig, classpathTypes.value, update.value)
     },
@@ -136,6 +154,11 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     configuration / managedSourceDirectories ++= (ProtobufConfig / protobufGeneratedTargets).value.map{_._1},
     libraryDependencies += ("com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value),
     libraryDependencies += protocDependency((ProtobufConfig / version).value) % ProtobufTool,
+    libraryDependencies ++= {
+      if (protobufGrpcEnabled.value) {
+        Seq(protocGenGrpcJavaDependency(protobufGrpcVersion.value) % ProtobufTool)
+      } else Nil
+    },
     ivyConfigurations ++= List(ProtobufConfig, ProtobufTool),
     setProtoArtifact
   )
