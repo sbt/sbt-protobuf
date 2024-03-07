@@ -63,5 +63,9 @@ lazy val root = (project in file("."))
     }
     scriptedBufferLog := false
     scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
-
+    (pluginCrossBuild / sbtVersion) := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.5.8"
+      }
+    }
   })
