@@ -55,6 +55,13 @@ This can be achieved by adding the following setting:
 ProtobufConfig / sourceDirectories += (ProtobufConfig / protobufExternalIncludePath).value
 ```
 
+### Compiling gRPC proto files
+The following enables gRPC support.
+
+```scala
+ProtobufConfig / protobufGrpcEnabled := true
+```
+
 ### Packaging proto files
 `*.proto` files can be included in the jar file by adding the following setting to your build definition:
 
@@ -136,14 +143,38 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
 <tr>
     <td>version</td>
     <td>x</td>
-    <td><code>"3.9.0"</code></td>
+    <td><code>"3.25.3"</code></td>
     <td>Which version of the protobuf library should be used. A dependency to <code>"com.google.protobuf" % "protobuf-java" % "$version"</code> is automatically added to <code>libraryDependencies</td>
+</tr>
+<tr>
+    <td>protobufGrpcVersion</td>
+    <td></td>
+    <td><code>"1.62.2"</code></td>
+    <td>Which version of the gRPC plugin should be used.</td>
+</tr>
+<tr>
+    <td>protobufGrpcEnabled</td>
+    <td></td>
+    <td><code>false</code></td>
+    <td>The setting to enable gRPC plugin.</td>
 </tr>
 <tr>
     <td>protobufProtoc</td>
     <td></td>
     <td><code>"protoc"</code></td>
     <td>The path to the 'protoc' executable.</td>
+</tr>
+<tr>
+    <td>protobufIncludeFilters</td>
+    <td></td>
+    <td><code>Glob(d.toPath()) / "**" / "*.proto"</code></td>
+    <td>The list of <code>*.proto</code> glob expressions to include.</td>
+</tr>
+<tr>
+    <td>protobufExcludeFilters</td>
+    <td></td>
+    <td><code>Glob(d.toPath()) / "google" / "protobuf" / "*.proto"</code></td>
+    <td>The list of <code>*.proto</code> glob expressions to exclude.</td>
 </tr>
 <tr>
     <td>protobufIncludePaths</td>
@@ -158,16 +189,10 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
     <td>The path to which <code>protobuf:libraryDependencies</code> are extracted and which is used as <code>protobuf:protobufIncludePath</code> for <code>protoc</code></td>
 </tr>
 <tr>
-    <td>protobufProtocOptions</td>
-    <td></td>
-    <td><code>--java_out=</code>[java generated source directory from <code>protobufGeneratedTargets</code>]</td>
-    <td>the list of options passed to the <code>protoc</code> binary</td>
-</tr>
-<tr>
     <td>protobufGeneratedTargets</td>
     <td></td>
     <td><code>(file(</code>java source directory based on <code>ProtobufConfig / javaSource</code>), <code>"*.java")</code></td>
-    <td>the list of target directories and source file globs for the generated files</td>
+    <td>The list of target directories and source file globs for the generated files</td>
 </tr>
 </table>
 
@@ -195,6 +220,12 @@ All settings and tasks are in the `protobuf` scope. If you want to execute the `
   <td>protobufPackage</td>
   <td>Produces a jar artifact containing only <code>*.proto</code> files, with a <code>proto</code> classifier</td>
 </tr>
+<tr>
+    <td>protobufProtocOptions</td>
+    <td></td>
+    <td><code>--java_out=</code>[java generated source directory from <code>protobufGeneratedTargets</code>]</td>
+    <td>The list of options passed to the <code>protoc</code> binary</td>
+</tr>
 
 </table>
 
@@ -206,7 +237,7 @@ Compile / sourceGenerators += Def.task {
   val protoPackage = "org.example.proto.foo"
 
   val scalaFile = (Compile/sourceManaged).value / "_ONLY_FOR_INTELLIJ.scala"
-  
+
   IO.write(scalaFile,
     s"""package $protoPackage
       |
