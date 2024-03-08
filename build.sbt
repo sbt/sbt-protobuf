@@ -11,6 +11,7 @@ lazy val root = (project in file("."))
     name := "sbt-protobuf"
     crossScalaVersions := Seq(scala212)
     scalaVersion := scala212
+    pluginCrossBuild / sbtVersion := "1.5.8"
     libraryDependencies += protobuf
     Compile / sourceGenerators += task {
       val source = s"""package sbtprotobuf
@@ -67,9 +68,4 @@ lazy val root = (project in file("."))
     }
     scriptedBufferLog := false
     scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
-    (pluginCrossBuild / sbtVersion) := {
-      scalaBinaryVersion.value match {
-        case "2.12" => "1.5.8"
-      }
-    }
   })
