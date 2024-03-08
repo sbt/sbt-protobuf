@@ -3,10 +3,14 @@ ThisBuild / organization := "com.github.sbt"
 lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % Runtime // for scala-steward
 lazy val grpc = "io.grpc" % "protoc-gen-grpc-java" % "1.62.2" % Runtime // for scala-steward
 
+def scala212 = "2.12.19"
+
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(nocomma {
     name := "sbt-protobuf"
+    crossScalaVersions := Seq(scala212)
+    scalaVersion := scala212
     libraryDependencies += protobuf
     Compile / sourceGenerators += task {
       val source = s"""package sbtprotobuf
