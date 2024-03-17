@@ -1,1 +1,5 @@
 > checkJar
+
+$ copy-file changes/build2.sbt build.sbt
+> reload
+> checkJar
