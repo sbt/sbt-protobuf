@@ -90,7 +90,10 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     },
     protobufExcludeFilters ++= {
       val dirs = sourceDirectories.value
-      dirs.map(d => Glob(d.toPath()) / "google" / "protobuf" / "*.proto")
+      dirs.flatMap(d => Seq(
+        Glob(d.toPath()) / "google" / "protobuf" / "*.proto",
+        Glob(d.toPath()) / "com" / "google" / "protobuf" / "*.proto",
+      ))
     },
     javaSource := { (configuration / sourceManaged).value / "compiled_protobuf" },
     protobufExternalIncludePath := (target.value / "protobuf_external"),

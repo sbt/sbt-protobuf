@@ -1,6 +1,6 @@
 ThisBuild / organization := "com.github.sbt"
 
-lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3" % Runtime // for scala-steward
+lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "4.26.0" % Runtime // for scala-steward
 lazy val grpc = "io.grpc" % "protoc-gen-grpc-java" % "1.62.2" % Runtime // for scala-steward
 
 def scala212 = "2.12.19"
@@ -66,6 +66,7 @@ lazy val root = (project in file("."))
         }
       }</developers>
     }
+    scriptedSbt := "1.9.9"
     scriptedBufferLog := false
     scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
   })
