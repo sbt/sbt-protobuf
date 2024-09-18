@@ -1,6 +1,6 @@
 ThisBuild / organization := "com.github.sbt"
 
-lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.4" % Runtime // for scala-steward
+lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.5" % Runtime // for scala-steward
 lazy val grpc = "io.grpc" % "protoc-gen-grpc-java" % "1.62.2" % Runtime // for scala-steward
 
 def scala212 = "2.12.20"
