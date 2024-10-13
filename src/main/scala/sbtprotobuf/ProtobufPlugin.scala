@@ -115,7 +115,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
 
     protobufProtocOptions ++= { // if a java target is provided, add java generation option
       (ProtobufConfig / protobufGeneratedTargets).value.find(_._2.endsWith(".java")) match {
-        case Some(targetForJava) => Seq("--java_out=%s".format(targetForJava._1.getCanonicalPath))
+        case Some(targetForJava) => Seq(s"--java_out=${targetForJava._1.getCanonicalPath}")
         case None => Nil
       }
     },
@@ -127,7 +127,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
           extractFile(ur, protocGenGrpcJavaArtifactName)
         }
         ((ProtobufConfig / protobufGeneratedTargets).value.find(_._2.endsWith(".java")) match {
-          case Some(targetForJava) => Seq("--java_rpc_out=%s".format(targetForJava._1.getCanonicalPath))
+          case Some(targetForJava) => Seq(s"--java_rpc_out=${targetForJava._1.getCanonicalPath}")
           case None => Nil
         }) ++ Seq(
           s"--plugin=protoc-gen-java_rpc=${grpcCli}"
@@ -170,7 +170,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       val incPath = includePaths.map("-I" + _.getCanonicalPath)
       protocCommand(incPath ++ protocOptions ++ schemas.map(_.getCanonicalPath))
     } catch { case e: Exception =>
-      throw new RuntimeException("error occurred while compiling protobuf files: %s" format(e.getMessage), e)
+      throw new RuntimeException(s"error occurred while compiling protobuf files: ${e.getMessage}", e)
     }
 
   private[this] def compile(
@@ -188,18 +188,18 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     }
 
     if(!schemas.isEmpty){
-      log.info("compiling %d protobuf files to %s".format(schemas.size, generatedTargetDirs.mkString(",")))
+      log.info(s"compiling ${schemas.size} protobuf files to ${generatedTargetDirs.mkString(",")}")
       log.debug("protoc options:")
       protocOptions.map("\t"+_).foreach(log.debug(_))
-      schemas.foreach(schema => log.info("Compiling schema %s" format schema))
+      schemas.foreach(schema => log.info(s"Compiling schema ${schema}"))
 
       val exitCode = executeProtoc(protocCommand, schemas, includePaths, protocOptions, log)
       if (exitCode != 0)
-        sys.error("protoc returned exit code: %d" format exitCode)
+        sys.error(s"protoc returned exit code: ${exitCode}")
 
       log.info("Compiling protobuf")
       generatedTargetDirs.foreach{ dir =>
-        log.info("Protoc target directory: %s".format(dir.absolutePath))
+        log.info(s"Protoc target directory: ${dir.absolutePath}")
       }
 
       (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
