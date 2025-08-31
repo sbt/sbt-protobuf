@@ -9,10 +9,14 @@ lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(nocomma {
     name := "sbt-protobuf"
-    crossScalaVersions := Seq(scala212)
-    scalaVersion := scala212
-    pluginCrossBuild / sbtVersion := "1.5.8"
     libraryDependencies += protobuf
+    crossScalaVersions := Seq(scala212, "3.7.2")
+    pluginCrossBuild / sbtVersion := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.5.8"
+        case _ => "2.0.0-RC4"
+      }
+    }
     Compile / sourceGenerators += task {
       val source = s"""package sbtprotobuf
         |
@@ -42,7 +46,15 @@ lazy val root = (project in file("."))
       }
       new scala.xml.transform.RuleTransformer(rule).transform(node)(0)
     }
-    scalacOptions := Seq("-deprecation", "-unchecked", "-Xlint", "-Yno-adapted-args")
+    scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xlint")
+    scalacOptions ++= {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          Seq("-Yno-adapted-args")
+        case _ =>
+          Nil
+      }
+    }
     (Compile / doc / scalacOptions) ++= {
       val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
       Seq(
