@@ -1,10 +1,12 @@
 package sbtprotobuf
 
+import xsbti.FileConverter
 import sbt._
 import Keys._
 import sbt.Defaults.packageTaskSettings
 import java.io.File
 import SbtProtobuf._
+import sbtprotobuf.ProtobufPluginCompat._
 
 object ProtobufTestPlugin extends ScopedProtobufPlugin(Test, "-test")
 
@@ -25,19 +27,26 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     @deprecated("will be removed. use ProtobufConfig", "0.6.2")
     val protobufConfig = ProtobufConfig
 
+    @transient
     val protobufIncludePaths = taskKey[Seq[File]]("The paths that contain *.proto dependencies.")
+    @transient
     val protobufSources = taskKey[Seq[File]]("Protobuf files")
     val protobufIncludeFilters = settingKey[Seq[Glob]]("Include filters")
     val protobufExcludeFilters = settingKey[Seq[Glob]]("Exclude filters")
     val protobufUseSystemProtoc = settingKey[Boolean]("Use the protoc installed on the machine.")
     val protobufProtoc = settingKey[String]("The path+name of the protoc executable if protobufUseSystemProtoc is enabled.")
+    @transient
     val protobufRunProtoc = taskKey[Seq[String] => Int]("A function that executes the protobuf compiler with the given arguments, returning the exit code of the compilation run.")
     val protobufExternalIncludePath = settingKey[File]("The path to which protobuf:libraryDependencies are extracted and which is used as protobuf:includePath for protoc")
     val protobufGeneratedTargets = settingKey[Seq[(File,String)]]("Targets for protoc: target directory and glob for generated source files")
+    @transient
     val protobufGenerate = taskKey[Seq[File]]("Compile the protobuf sources.")
+    @transient
     val protobufUnpackDependencies = taskKey[UnpackedDependencies]("Unpack dependencies.")
+    @transient
     val protobufProtocOptions = taskKey[Seq[String]]("Additional options to be passed to protoc")
-    val protobufPackage = taskKey[File]("Produces a proto artifact, such as a jar containing .proto files")
+    @transient
+    val protobufPackage = taskKey[FileRef]("Produces a proto artifact, such as a jar containing .proto files")
     val protobufGrpcEnabled = settingKey[Boolean]("Enable gRPC plugin")
     val protobufGrpcVersion = settingKey[String]("gRPC version")
 
@@ -50,7 +59,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
   override def projectConfigurations: Seq[Configuration] = ProtobufConfig :: Nil
 
   // global scoping can be used to provide the default values
-  override lazy val globalSettings: Seq[Setting[_]] = Seq(
+  override lazy val globalSettings: Seq[Setting[?]] = Seq(
     protobufUseSystemProtoc := false,
     protobufGeneratedTargets := Nil,
     protobufProtocOptions := Nil,
@@ -60,7 +69,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufGrpcVersion := SbtProtobufBuildInfo.defaultGrpcVersion,
   )
 
-  override lazy val projectSettings: Seq[Setting[_]] = inConfig(ProtobufConfig)(Seq[Setting[_]](
+  override lazy val projectSettings: Seq[Setting[?]] = inConfig(ProtobufConfig)(Seq[Setting[?]](
     sourceDirectory := { (configuration / sourceDirectory).value / "protobuf" },
     sourceDirectories := (sourceDirectory.value :: Nil),
     protobufSources := {
@@ -68,7 +77,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       val includes = protobufIncludeFilters.value
       val excludes = protobufExcludeFilters.value
       dirs.flatMap { dir =>
-        val allFiles = (dir ** "*").get.map(_.toPath())
+        val allFiles = (dir ** "*").get().map(_.toPath())
         allFiles
           .filter(x => includes.exists(_.matches(x)))
           .filterNot(x => excludes.exists(_.matches(x)))
@@ -134,8 +143,8 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
         )
       } else Nil
     },
-    managedClasspath := {
-      Classpaths.managedJars(ProtobufConfig, classpathTypes.value, update.value)
+    managedClasspath := Def.uncached{
+      ProtobufPluginCompat.managedJars(ProtobufConfig, classpathTypes.value, update.value, fileConverter.value)
     },
 
     protobufUnpackDependencies := unpackDependenciesTask.value,
@@ -146,7 +155,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     protobufGenerate := sourceGeneratorTask.dependsOn(protobufUnpackDependencies).value,
   )) ++ inConfig(ProtobufConfig)(
     packageTaskSettings(protobufPackage, packageProtoMappings)
-  ) ++ Seq[Setting[_]](
+  ) ++ Seq[Setting[?]](
     watchSourcesSetting,
     configuration / sourceGenerators += (ProtobufConfig / protobufGenerate).taskValue,
     cleanFiles ++= (ProtobufConfig / protobufGeneratedTargets).value.map{_._1},
@@ -202,16 +211,16 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
         log.info(s"Protoc target directory: ${dir.absolutePath}")
       }
 
-      (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get}).toSet
+      (generatedTargets.flatMap{ot => (ot._1 ** ot._2).get()}).toSet
     } else {
       Set[File]()
     }
   }
 
-  private[this] def unpack(deps: Seq[File], extractTarget: File, log: Logger): Seq[File] = {
+  private[this] def unpack(deps: Seq[FileRef], extractTarget: File, log: Logger, converter: FileConverter): Seq[File] = {
     IO.createDirectory(extractTarget)
     deps.flatMap { dep =>
-      val seq = IO.unzip(dep, extractTarget, "*.proto").toSeq
+      val seq = IO.unzip(ProtobufPluginCompat.toFile(dep, converter), extractTarget, "*.proto").toSeq
       if (!seq.isEmpty) log.debug("Extracted " + seq.mkString("\n * ", "\n * ", ""))
       seq
     }
@@ -241,14 +250,15 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
 
   private[this] def unpackDependenciesTask = Def.task {
     val extractTarget = (ProtobufConfig / protobufExternalIncludePath).value
-    val extractedFiles = unpack((ProtobufConfig / managedClasspath).value.map(_.data), extractTarget, streams.value.log)
+    val extractedFiles = unpack((ProtobufConfig / managedClasspath).value.map(_.data), extractTarget, streams.value.log, fileConverter.value)
     UnpackedDependencies(extractTarget, extractedFiles)
   }
 
-  private[this] def packageProtoMappings =
+  private[this] def packageProtoMappings: Def.Initialize[Task[Seq[(FileRef, String)]]]  =
     Def.task {
+      val converter = fileConverter.value
       protobufSources.value.map {
-        case x => (x, x.getName)
+        x => (ProtobufPluginCompat.toFileRef(x, converter), x.getName)
       }
     }
 }

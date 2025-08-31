@@ -31,6 +31,6 @@ jobs:
         cache: sbt
     - uses: sbt/setup-sbt@v1
     - shell: bash
-      run: sbt -v $(if [[ "${{matrix.sbt_version}}" != "" ]] ; then echo "^^${{matrix.sbt_version}}" ; fi) test scripted
+      run: sbt -v test scripted "++ 3.x" test
     - shell: bash
       run: rm -rf "$HOME/.ivy2/local" || true
