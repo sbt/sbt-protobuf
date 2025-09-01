@@ -14,12 +14,16 @@ jobs:
         include:
           - java: 8
             os: ubuntu-latest
+            distribution: zulu
           - java: 8
             os: windows-latest
+            distribution: zulu
           - java: 11
             os: ubuntu-latest
+            distribution: temurin
           - java: 17
             os: ubuntu-latest
+            distribution: temurin
     steps:
     - uses: actions/checkout@v5
       with:
@@ -27,7 +31,7 @@ jobs:
     - uses: actions/setup-java@v5
       with:
         java-version: ${{ matrix.java }}
-        distribution: temurin
+        distribution: ${{ matrix.distribution }}
         cache: sbt
     - uses: sbt/setup-sbt@v1
     - shell: bash
