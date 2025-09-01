@@ -1,2 +1,2 @@
 > compile
-$ exists bar/target/scala-2.11/src_managed/main/compiled_protobuf/test/Test2OuterClass.java
+> check
