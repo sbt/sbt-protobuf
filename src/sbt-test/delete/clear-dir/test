@@ -1,5 +1,5 @@
-> protobuf:protobufGenerate
+> Protobuf/protobufGenerate
 $ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test.java
 $ delete src/main/protobuf/test.proto
-> protobuf:protobufGenerate
+> Protobuf/protobufGenerate
 -$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test.java
