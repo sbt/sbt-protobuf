@@ -11,10 +11,20 @@ lazy val root = (project in file("."))
     name := "sbt-protobuf"
     libraryDependencies += protobuf
     crossScalaVersions := Seq(scala212, "3.7.2")
+    scriptedSbt := {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          sbtVersion.value
+        case _ =>
+          (pluginCrossBuild / sbtVersion).value
+      }
+    }
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.5.8"
-        case _ => "2.0.0-RC4"
+        case "2.12" =>
+          "1.5.8"
+        case _ =>
+          "2.0.0-RC4"
       }
     }
     Compile / sourceGenerators += task {
@@ -56,11 +66,16 @@ lazy val root = (project in file("."))
       }
     }
     (Compile / doc / scalacOptions) ++= {
-      val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
-      Seq(
-        "-sourcepath", baseDirectory.value.getAbsolutePath,
-        "-doc-source-url", "https://github.com/sbt/sbt-protobuf/blob/" + hash + "€{FILE_PATH}.scala"
-      )
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
+          Seq(
+            "-sourcepath", baseDirectory.value.getAbsolutePath,
+            "-doc-source-url", "https://github.com/sbt/sbt-protobuf/blob/" + hash + "€{FILE_PATH}.scala"
+          )
+        case _ =>
+          Nil
+      }
     }
     licenses += (("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0")))
     homepage := Some(url("https://github.com/sbt/sbt-protobuf"))
@@ -78,6 +93,25 @@ lazy val root = (project in file("."))
         }
       }</developers>
     }
+    TaskKey[Unit]("scriptedTestSbt2") := Def.taskDyn {
+      val values = sbtTestDirectory.value
+        .listFiles(_.isDirectory)
+        .flatMap { dir1 =>
+          dir1.listFiles(_.isDirectory).map { dir2 =>
+            dir1.getName -> dir2.getName
+          }
+        }
+        .toList
+      val log = streams.value.log
+      // TODO enable all tests
+      val exclude: Set[(String, String)] = Set(
+        "basic", "exclude", "task-scoped"
+      ).map("sbt-protobuf" -> _)
+      val args = values.filterNot(exclude).map { case (x1, x2) => s"${x1}/${x2}" }
+      val arg = args.mkString(" ", " ", "")
+      log.info(s"scripted $arg")
+      scripted.toTask(arg)
+    }.value
     scriptedBufferLog := false
     scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
   })

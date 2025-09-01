@@ -1,7 +1,7 @@
 > Protobuf/protobufGenerate
-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test.java
-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test2.java
+$ exists target/**/src_managed/main/compiled_protobuf/test/Test.java
+$ exists target/**/src_managed/main/compiled_protobuf/test/Test2.java
 $ delete src/main/protobuf/test.proto
 > Protobuf/protobufGenerate
--$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test.java
-$ exists target/scala-2.10/src_managed/main/compiled_protobuf/test/Test2.java
+-$ exists target/**/src_managed/main/compiled_protobuf/test/Test.java
+$ exists target/**/src_managed/main/compiled_protobuf/test/Test2.java
