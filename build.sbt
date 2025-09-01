@@ -105,7 +105,7 @@ lazy val root = (project in file("."))
       val log = streams.value.log
       // TODO enable all tests
       val exclude: Set[(String, String)] = Set(
-        "basic", "exclude", "task-scoped"
+        "basic", "task-scoped"
       ).map("sbt-protobuf" -> _)
       val args = values.filterNot(exclude).map { case (x1, x2) => s"${x1}/${x2}" }
       val arg = args.mkString(" ", " ", "")

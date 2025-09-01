@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
 ProtobufConfig / sourceDirectories += (ProtobufConfig / protobufExternalIncludePath).value
 
 TaskKey[Unit]("checkJar") := {
-  val jar = (Compile / packageBin).value
+  val jar = (Compile / packageBinFile).value
   IO.withTemporaryDirectory{ dir =>
     val files = IO.unzip(jar, dir)
     val expect = Set(dir / "META-INF" / "MANIFEST.MF")
