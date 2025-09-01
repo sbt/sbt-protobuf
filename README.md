@@ -8,7 +8,7 @@ A plugin for sbt that transforms `*.proto` files into gazillion-loc Java source 
 In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following line:
 
 ```scala
-addSbtPlugin("com.github.sbt" % "sbt-protobuf" % "0.8.2")
+addSbtPlugin("com.github.sbt" % "sbt-protobuf" % "0.8.3")
 ```
 
 The dependency to `"com.google.protobuf" % "protobuf-java"` is automatically added to the `Compile` scope.
