@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
   .settings(nocomma {
     name := "sbt-protobuf"
     libraryDependencies += protobuf
-    crossScalaVersions := Seq(scala212, "3.7.3")
+    crossScalaVersions := Seq(scala212, "3.7.4")
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" =>
