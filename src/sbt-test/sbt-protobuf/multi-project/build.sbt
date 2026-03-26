@@ -1,3 +1,5 @@
+import sbtcompat.PluginCompat._
+
 val commonSettings = Seq(
   scalaVersion := "2.11.12"
 )
@@ -8,7 +10,7 @@ val foo = project.settings(
 
 val bar = project.settings(
   commonSettings,
-  (ProtobufConfig / protobufIncludePaths) += (foo / ProtobufConfig / sourceDirectory).value
+  (ProtobufConfig / protobufIncludePaths) += Def.uncached((foo / ProtobufConfig / sourceDirectory).value)
 ).dependsOn(foo).enablePlugins(ProtobufPlugin)
 
 val root = project.in(file("."))
