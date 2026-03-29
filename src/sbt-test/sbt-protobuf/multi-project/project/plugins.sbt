@@ -5,3 +5,5 @@
                                   |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
   else addSbtPlugin("com.github.sbt" % "sbt-protobuf" % pluginVersion)
 }
+
+addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0")
