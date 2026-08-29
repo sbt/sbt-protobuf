@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
         case "2.12" =>
           "1.5.8"
         case _ =>
-          "2.0.5"
+          "2.0.8"
       }
     }
     Compile / sourceGenerators += task {
