@@ -9,7 +9,7 @@ lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(nocomma {
     name := "sbt-protobuf"
-    libraryDependencies += protobuf
+    libraryDependencies ++= Seq(protobuf, grpc)
     crossScalaVersions := Seq(scala212, "3.8.4")
     scriptedSbt := {
       scalaBinaryVersion.value match {
@@ -41,13 +41,18 @@ lazy val root = (project in file("."))
     }
     pomPostProcess := { node =>
       import scala.xml.{NodeSeq, Node}
+      val libs = Seq(grpc, protobuf)
       val rule = new scala.xml.transform.RewriteRule {
         override def transform(n: Node) = {
-          if (List(
-            n.label == "dependency",
-            (n \ "groupId").text == protobuf.organization,
-            (n \ "artifactId").text == protobuf.name,
-          ).forall(identity)) {
+          if (
+            libs.exists(x =>
+              List(
+                n.label == "dependency",
+                (n \ "groupId").text == x.organization,
+                (n \ "artifactId").text == x.name,
+              ).forall(identity)
+            )
+          ) {
             NodeSeq.Empty
           } else {
             n
