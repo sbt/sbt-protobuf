@@ -4,17 +4,18 @@ lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.9" % Runtime
 lazy val grpc = "io.grpc" % "protoc-gen-grpc-java" % "1.85.1" % Runtime // for scala-steward
 
 def scala212 = "2.12.21"
+ThisBuild / scalaVersion := scala212
 
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(nocomma {
     name := "sbt-protobuf"
     libraryDependencies ++= Seq(protobuf, grpc)
-    crossScalaVersions := Seq(scala212, "3.8.4")
+    crossScalaVersions := Seq(scala212, "3.9.0")
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" =>
-          sbtVersion.value
+          "1.13.1"
         case _ =>
           (pluginCrossBuild / sbtVersion).value
       }
@@ -24,7 +25,7 @@ lazy val root = (project in file("."))
         case "2.12" =>
           "1.5.8"
         case _ =>
-          "2.0.8"
+          "2.1.0"
       }
     }
     Compile / sourceGenerators += task {
@@ -65,7 +66,7 @@ lazy val root = (project in file("."))
     scalacOptions ++= {
       scalaBinaryVersion.value match {
         case "2.12" =>
-          Seq("-Yno-adapted-args", "-release:8")
+          Seq("-Xsource:3", "-Yno-adapted-args", "-release:8")
         case _ =>
           Nil
       }
