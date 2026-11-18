@@ -24,6 +24,9 @@ jobs:
           - java: 17
             os: ubuntu-latest
             distribution: temurin
+          - java: 21
+            os: ubuntu-latest
+            distribution: temurin
     steps:
     - uses: actions/checkout@v7
       with:

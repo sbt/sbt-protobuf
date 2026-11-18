@@ -174,7 +174,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
 
   case class UnpackedDependencies(dir: File, files: Seq[File])
 
-  private[this] def executeProtoc(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) : Int =
+  private def executeProtoc(protocCommand: Seq[String] => Int, schemas: Set[File], includePaths: Seq[File], protocOptions: Seq[String], log: Logger) : Int =
     try {
       val incPath = includePaths.map("-I" + _.getCanonicalPath)
       protocCommand(incPath ++ protocOptions ++ schemas.map(_.getCanonicalPath))
@@ -182,7 +182,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       throw new RuntimeException(s"error occurred while compiling protobuf files: ${e.getMessage}", e)
     }
 
-  private[this] def compile(
+  private def compile(
       protocCommand: Seq[String] => Int,
       schemas: Set[File],
       includePaths: Seq[File],
@@ -217,7 +217,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     }
   }
 
-  private[this] def unpack(deps: Seq[FileRef], extractTarget: File, log: Logger, converter: FileConverter): Seq[File] = {
+  private def unpack(deps: Seq[FileRef], extractTarget: File, log: Logger, converter: FileConverter): Seq[File] = {
     IO.createDirectory(extractTarget)
     val extractedFiles = deps.flatMap { dep =>
       val seq = IO.unzip(ProtobufPluginCompat.toFile(dep, converter), extractTarget, "*.proto").toSeq
@@ -231,7 +231,7 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
     extractedFiles
   }
 
-  private[this] def sourceGeneratorTask =
+  private def sourceGeneratorTask =
     Def.task {
       import sbt.util.CacheImplicits._
       import sbt.util.HashFileInfo
@@ -280,13 +280,13 @@ class ScopedProtobufPlugin(configuration: Configuration, private[sbtprotobuf] va
       cachedGeneration((settings, FileInfo.hash(inputs))).toSeq
     }
 
-  private[this] def unpackDependenciesTask = Def.task {
+  private def unpackDependenciesTask = Def.task {
     val extractTarget = (ProtobufConfig / protobufExternalIncludePath).value
     val extractedFiles = unpack((ProtobufConfig / managedClasspath).value.map(_.data), extractTarget, streams.value.log, fileConverter.value)
     UnpackedDependencies(extractTarget, extractedFiles)
   }
 
-  private[this] def packageProtoMappings: Def.Initialize[Task[Seq[(FileRef, String)]]]  =
+  private def packageProtoMappings: Def.Initialize[Task[Seq[(FileRef, String)]]]  =
     Def.task {
       val converter = fileConverter.value
       protobufSources.value.map {
